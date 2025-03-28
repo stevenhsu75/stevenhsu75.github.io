@@ -1,1 +1,24 @@
-112233
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>相機測試</title>
+</head>
+<body>
+    <video id="video" autoplay playsinline style="width:100%; max-width: 400px;"></video>
+    <script>
+        async function startCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                document.getElementById('video').srcObject = stream;
+                console.log("相機已啟動");
+            } catch (error) {
+                console.error("相機存取失敗：", error);
+                alert("無法存取相機，請確認瀏覽器權限！");
+            }
+        }
+        startCamera();
+    </script>
+</body>
+</html>
