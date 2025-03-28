@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zappar WebAR 換眼鏡</title>
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <script src="https://libs.zappar.com/aframe/2.0.0/zappar-aframe.min.js"></script>
+</head>
+<body style="margin: 0; overflow: hidden;">
+    <a-scene zappar-camera arjs>
+        <!-- 設置 Zappar 相機 -->
+        <a-entity zappar-camera></a-entity>
+
+        <!-- 臉部追蹤（Face Tracking） -->
+        <a-entity zappar-face>
+            <!-- 3D 眼鏡模型 -->
+            <a-entity position="0 0 0" scale="1 1 1"
+                      gltf-model="https://glasses.glb">
+            </a-entity>
+        </a-entity>
+    </a-scene>
+</body>
+</html>
