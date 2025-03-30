@@ -22,9 +22,18 @@
     <canvas id="canvas"></canvas>
 
     <!-- 載入 OpenCV.js -->
-    <script async src="https://docs.opencv.org/4.5.0/opencv.js"></script>
-    
+    <script async src="https://docs.opencv.org/4.x/opencv.js"></script>
+
     <script>
+        // 當 OpenCV.js 加載完成後會自動調用此函數
+        function onOpenCvLoaded() {
+            console.log("✅ OpenCV.js 載入完成！");
+            startFaceDetection();
+        }
+
+        // 註冊 OpenCV.js 加載完成事件
+        window.cvLoaded = onOpenCvLoaded;
+
         let video = document.getElementById('video');
         let canvas = document.getElementById('canvas');
         let ctx = canvas.getContext('2d');
@@ -32,15 +41,9 @@
         glasses.src = 'https://stevenhsu75.github.io/glasses.png';  // 確保圖片網址正確
         let faceCascade = null;
 
-        // 等待 OpenCV.js 載入完成後執行
-        cv['onRuntimeInitialized'] = () => {
-            console.log("✅ OpenCV.js 載入完成！");
-            startFaceDetection();
-        };
-
-
+        // 確保 OpenCV.js 完全載入後才執行
         function startFaceDetection() {
-            // 確保 cv 已定義並且 OpenCV.js 正常初始化
+            // 確保 OpenCV.js 已初始化
             if (typeof cv === 'undefined') {
                 console.error("❌ OpenCV.js 尚未載入！");
                 return;
@@ -63,7 +66,7 @@
         }
 
         function detectFace() {
-            // 確保 cv 已定義並且 OpenCV.js 正常初始化
+            // 確保 OpenCV.js 已初始化
             if (typeof cv === 'undefined' || !faceCascade) return;
 
             let src = cv.imread(video);
