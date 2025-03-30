@@ -21,8 +21,8 @@
     <video id="video" autoplay playsinline></video>
     <canvas id="canvas"></canvas>
 
-    <!-- ✅ 修正 OpenCV.js 載入方式 -->
-    <script async src="https://docs.opencv.org/4.x/opencv.js" onload="loadOpenCV()"></script>
+    <!-- ✅ 使用 OpenCV.js CDN -->
+    <script async src="https://docs.opencv.org/4.x/opencv.js"></script>
 
     <script>
         let video = document.getElementById('video');
@@ -32,16 +32,18 @@
         glasses.src = 'https://stevenhsu75.github.io/glasses.png';  // 確保圖片網址正確
         let faceCascade = null;
 
-        function loadOpenCV() {
-            console.log("✅ OpenCV.js 正在載入...");
-            cv.onRuntimeInitialized = function () {
-                console.log("✅ OpenCV.js 載入完成！");
-                startFaceDetection();
-            };
-        }
+        // ✅ 定期檢查 OpenCV.js 是否載入成功
+        let checkOpenCV = setInterval(() => {
+            if (typeof cv !== 'undefined' && cv.getBuildInformation) {
+                clearInterval(checkOpenCV);  // 停止檢查
+                console.log("✅ OpenCV.js 已載入成功！");
+                startFaceDetection();  // 開始執行臉部偵測
+            } else {
+                console.log("⏳ OpenCV.js 還在載入...");
+            }
+        }, 500); // 每 500 毫秒檢查一次
 
         function startFaceDetection() {
-            // ✅ 確保 OpenCV.js 已經載入
             if (typeof cv === 'undefined') {
                 console.error("❌ OpenCV.js 尚未載入！");
                 return;
