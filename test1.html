@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="zh">
 <head>
@@ -41,10 +42,10 @@
 
         async function loadCascade() {
             let cascadeFile = 'haarcascade_frontalface_default.xml';
-            let faceCascadeUrl = 'https://raw.githubusercontent.com/opencv/opencv/master/data/haarcascades/haarcascade_frontalface_default.xml';
+            let cascadeUrl = 'https://raw.githubusercontent.com/opencv/opencv/master/data/haarcascades/haarcascade_frontalface_default.xml';
 
             try {
-                let response = await fetch(faceCascadeUrl);
+                let response = await fetch(cascadeUrl);
                 let buffer = await response.arrayBuffer();
                 cv.FS_createDataFile("/", cascadeFile, new Uint8Array(buffer), true, false, false);
                 faceCascade = new cv.CascadeClassifier();
