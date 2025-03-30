@@ -34,7 +34,7 @@
 
         // ✅ 定期檢查 OpenCV.js 是否載入成功
         let checkOpenCV = setInterval(() => {
-            if (typeof cv !== 'undefined' && cv.getBuildInformation) {
+            if (typeof cv !== 'undefined') {
                 clearInterval(checkOpenCV);  // 停止檢查
                 console.log("✅ OpenCV.js 已載入成功！");
                 startFaceDetection();  // 開始執行臉部偵測
