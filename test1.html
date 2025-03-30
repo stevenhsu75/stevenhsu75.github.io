@@ -24,7 +24,7 @@
         cv['onRuntimeInitialized'] = function() {
             console.log("OpenCV.js 已載入完成");
             opencvReady = true;
-            alert('OpenCV OK');
+            alert("OpenCV OK");
         };
 
         // 3. 載入眼鏡圖片
@@ -55,7 +55,7 @@
             let faceCascade = new cv.CascadeClassifier();
             let success = faceCascade.load('https://raw.githubusercontent.com/opencv/opencv/master/data/haarcascades/haarcascade_frontalface_default.xml');
 if (!success) {
-    alert(' Haar Cascade XML error');
+    alert(" Haar Cascade XML error");
     console.error("❌ 無法載入 Haar Cascade XML 檔案！");
     return;
 }
