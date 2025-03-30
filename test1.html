@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="zh">
 <head>
@@ -23,14 +22,14 @@
     <canvas id="canvas"></canvas>
 
     <!-- 載入 OpenCV.js -->
-    <script src="opencv.js"></script>
+    <script src="https://docs.opencv.org/4.x/opencv.js"></script>
 
     <script>
         let video = document.getElementById('video');
         let canvas = document.getElementById('canvas');
         let ctx = canvas.getContext('2d', { willReadFrequently: true });
         let glasses = new Image();
-        glasses.src = 'glasses.png';
+        glasses.src = 'https://stevenhsu75.github.io/glasses.png';
 
         let faceCascade;
 
