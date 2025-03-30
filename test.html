@@ -22,14 +22,24 @@
         let currentGlassesIndex = 0;
 
         // 檢查 WebXR 支援性
-        if (!navigator.xr) {
-            console.error("WebXR is not supported on this browser.");
-            alert("WebXR is not supported on this browser. Try using Chrome or Edge with HTTPS.");
-        } else {
-            init();
+        async function checkWebXRSupport() {
+            if (!navigator.xr) {
+                console.error("WebXR is not supported on this browser.");
+                alert("WebXR is not supported on this browser. Try using Chrome or Edge with HTTPS.");
+                return false;
+            }
+            try {
+                await navigator.xr.isSessionSupported('immersive-vr');
+                return true;
+            } catch (error) {
+                console.error("WebXR immersive-vr session is not supported.", error);
+                alert("WebXR immersive-vr session is not supported.");
+                return false;
+            }
         }
 
-        function init() {
+        async function init() {
+            if (!await checkWebXRSupport()) return;
             // 建立場景
             scene = new THREE.Scene();
             
@@ -98,6 +108,7 @@
             // 持續渲染場景
             renderer.render(scene, camera);
         }
+        init();
     </script>
 </head>
 <body>
