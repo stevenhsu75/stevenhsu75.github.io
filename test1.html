@@ -22,7 +22,7 @@
     <canvas id="canvas"></canvas>
 
     <!-- 載入 OpenCV.js -->
-    <script src="opencv.js"></script>
+    <script src="https://docs.opencv.org/4.x/opencv.js"></script>
 
     <script>
         cv['onRuntimeInitialized'] = () => {
@@ -36,7 +36,6 @@
         let glasses = new Image();
         glasses.src = 'https://stevenhsu75.github.io/glasses.png';  
         let faceCascade = null;
-        let cap = null;
 
         function startFaceDetection() {
             if (typeof cv === 'undefined') {
@@ -45,22 +44,17 @@
             }
 
             faceCascade = new cv.CascadeClassifier();
-            faceCascade.load('https://raw.githubusercontent.com/opencv/opencv/master/data/haarcascades/haarcascade_frontalface_default.xml');
+            faceCascade.load('haarcascade_frontalface_default.xml');
 
             navigator.mediaDevices.getUserMedia({ video: true }).then((stream) => {
                 video.srcObject = stream;
 
-                // 確保 video 影像可用
                 video.onloadeddata = () => {
                     console.log("🎥 相機已就緒！");
                     video.play();
                     canvas.width = video.videoWidth;
                     canvas.height = video.videoHeight;
 
-                    // 使用 OpenCV 讀取影像
-                    cap = new cv.VideoCapture(video);
-
-                    // 每 100ms 執行 detectFace
                     setInterval(detectFace, 100);
                 };
             }).catch((error) => {
@@ -69,18 +63,16 @@
         }
 
         function detectFace() {
-            if (!cap) {
-                console.warn("🚨 VideoCapture 尚未初始化");
-                return;
-            }
-
             if (video.videoWidth === 0 || video.videoHeight === 0) {
                 console.warn("🚨 視訊未準備好，跳過偵測");
                 return;
             }
 
-            let frame = new cv.Mat(video.videoHeight, video.videoWidth, cv.CV_8UC4);
-            cap.read(frame);
+            let frame = cv.Mat.zeros(video.videoHeight, video.videoWidth, cv.CV_8UC4);
+            let context = canvas.getContext('2d');
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            let imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+            frame.data.set(imageData.data);
 
             let gray = new cv.Mat();
             cv.cvtColor(frame, gray, cv.COLOR_RGBA2GRAY);
