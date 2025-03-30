@@ -5,10 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AR 試戴眼鏡</title>
     <style>
+        body {
+            text-align: center;
+            background: black;
+        }
         video, canvas {
             position: absolute;
-            left: 0;
-            top: 0;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
         }
     </style>
 </head>
@@ -16,41 +21,53 @@
     <video id="video" autoplay playsinline></video>
     <canvas id="canvas"></canvas>
 
-    <!-- OpenCV.js -->
-    <script async src="https://docs.opencv.org/4.x/opencv.js"></script>
+    <!-- ✅ 修正 OpenCV.js 載入方式 -->
+    <script async src="https://docs.opencv.org/4.x/opencv.js" onload="loadOpenCV()"></script>
+
     <script>
         let video = document.getElementById('video');
         let canvas = document.getElementById('canvas');
         let ctx = canvas.getContext('2d');
         let glasses = new Image();
-        glasses.src = 'https://stevenhsu75.github.io/glasses.png'; // 確保這個路徑正確
-        let faceCascade;
+        glasses.src = 'https://stevenhsu75.github.io/glasses.png';  // 確保圖片網址正確
+        let faceCascade = null;
 
-        // 啟動相機
-        navigator.mediaDevices.getUserMedia({ video: true }).then((stream) => {
-            video.srcObject = stream;
-        });
+        function loadOpenCV() {
+            console.log("✅ OpenCV.js 正在載入...");
+            cv.onRuntimeInitialized = function () {
+                console.log("✅ OpenCV.js 載入完成！");
+                startFaceDetection();
+            };
+        }
 
-        // 確保 OpenCV.js 載入後才執行
-        cv.onRuntimeInitialized = function () {
-            console.log("✅ OpenCV.js 已載入");
+        function startFaceDetection() {
+            // ✅ 確保 OpenCV.js 已經載入
+            if (typeof cv === 'undefined') {
+                console.error("❌ OpenCV.js 尚未載入！");
+                return;
+            }
 
-            // 載入人臉識別模型
+            // ✅ 載入人臉識別模型 (使用 OpenCV 官方模型)
             faceCascade = new cv.CascadeClassifier();
             faceCascade.load('https://raw.githubusercontent.com/opencv/opencv/master/data/haarcascades/haarcascade_frontalface_default.xml');
 
-            // 影片載入後，每 100 毫秒偵測一次
-            video.addEventListener("loadeddata", function () {
-                setInterval(detectFace, 100);
+            // ✅ 啟動相機
+            navigator.mediaDevices.getUserMedia({ video: true }).then((stream) => {
+                video.srcObject = stream;
+                video.onloadedmetadata = () => {
+                    video.play();
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    setInterval(detectFace, 100);  // 每 100 毫秒偵測一次
+                };
             });
-        };
+        }
 
         function detectFace() {
             if (typeof cv === 'undefined' || !faceCascade) return;
 
-            let src = new cv.Mat(video.videoHeight, video.videoWidth, cv.CV_8UC4);
+            let src = cv.imread(video);
             let gray = new cv.Mat();
-            cv.imread(video, src);
             cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY);
 
             let faces = new cv.RectVector();
@@ -66,8 +83,11 @@
                 let eyeY = face.y + face.height * 0.3;
                 let eyeWidth = face.width * 0.7;
                 let eyeHeight = eyeWidth / 3;
-                
+
+                console.log("👓 偵測到臉部，繪製眼鏡！", eyeX, eyeY, eyeWidth, eyeHeight);
                 ctx.drawImage(glasses, eyeX, eyeY, eyeWidth, eyeHeight);
+            } else {
+                console.log("❌ 未偵測到臉部！");
             }
 
             src.delete();
