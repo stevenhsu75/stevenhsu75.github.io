@@ -25,14 +25,11 @@
     <script src="https://docs.opencv.org/4.x/opencv.js"></script>
 
     <script>
-        // 當 OpenCV.js 加載完成後會自動調用此函數
-        function onOpenCvLoaded() {
+        // 確保 OpenCV.js 完全載入後才開始
+        cv['onRuntimeInitialized'] = () => {
             console.log("✅ OpenCV.js 載入完成！");
             startFaceDetection();
-        }
-
-        // 註冊 OpenCV.js 加載完成事件
-        window.cvLoaded = onOpenCvLoaded;
+        };
 
         let video = document.getElementById('video');
         let canvas = document.getElementById('canvas');
@@ -65,6 +62,7 @@
             });
         }
 
+        // 偵測人臉並將眼鏡顯示在臉上
         function detectFace() {
             // 確保 OpenCV.js 已初始化
             if (typeof cv === 'undefined' || !faceCascade) return;
