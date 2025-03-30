@@ -22,10 +22,9 @@
     <canvas id="canvas"></canvas>
 
     <!-- 載入 OpenCV.js -->
-    <script src="opencv.js"></script>
+    <script src="https://docs.opencv.org/4.x/opencv.js"></script>
 
     <script>
-        // 確保 OpenCV.js 完全載入後才開始
         cv['onRuntimeInitialized'] = () => {
             console.log("✅ OpenCV.js 載入完成！");
             startFaceDetection();
@@ -35,53 +34,63 @@
         let canvas = document.getElementById('canvas');
         let ctx = canvas.getContext('2d');
         let glasses = new Image();
-        glasses.src = 'glasses.png';  // 確保圖片網址正確
+        glasses.src = 'https://stevenhsu75.github.io/glasses.png';  
         let faceCascade = null;
         let cap = null;
 
-        // 確保 OpenCV.js 完全載入後才執行
         function startFaceDetection() {
-            // 確保 OpenCV.js 已初始化
             if (typeof cv === 'undefined') {
                 console.error("❌ OpenCV.js 尚未載入！");
                 return;
             }
 
-            // 載入人臉識別模型 (使用 OpenCV 官方模型)
             faceCascade = new cv.CascadeClassifier();
             faceCascade.load('https://raw.githubusercontent.com/opencv/opencv/master/data/haarcascades/haarcascade_frontalface_default.xml');
 
-            // 啟動相機
             navigator.mediaDevices.getUserMedia({ video: true }).then((stream) => {
                 video.srcObject = stream;
-                video.onloadedmetadata = () => {
+
+                // 確保 video 影像可用
+                video.onloadeddata = () => {
+                    console.log("🎥 相機已就緒！");
                     video.play();
                     canvas.width = video.videoWidth;
                     canvas.height = video.videoHeight;
-                    cap = new cv.VideoCapture(video);  // 使用 OpenCV 的 VideoCapture 來捕獲視頻流
-                    setInterval(detectFace, 100);  // 每 100 毫秒偵測一次
+
+                    // 使用 OpenCV 讀取影像
+                    cap = new cv.VideoCapture(video);
+
+                    // 每 100ms 執行 detectFace
+                    setInterval(detectFace, 100);
                 };
             }).catch((error) => {
                 console.error("❌ 無法啟動相機:", error);
             });
         }
 
-        // 偵測人臉並將眼鏡顯示在臉上
         function detectFace() {
-            // 確保 OpenCV.js 已初始化
-            if (typeof cv === 'undefined' || !faceCascade) return;
+            if (!cap) {
+                console.warn("🚨 VideoCapture 尚未初始化");
+                return;
+            }
 
-            let frame = new cv.Mat(video.height, video.width, cv.CV_8UC4);  // 創建 OpenCV 的 Mat 來存放視頻帧
-            cap.read(frame);  // 從 VideoCapture 讀取幀
+            if (video.videoWidth === 0 || video.videoHeight === 0) {
+                console.warn("🚨 視訊未準備好，跳過偵測");
+                return;
+            }
+
+            let frame = new cv.Mat(video.videoHeight, video.videoWidth, cv.CV_8UC4);
+            cap.read(frame);
+
             let gray = new cv.Mat();
-            cv.cvtColor(frame, gray, cv.COLOR_RGBA2GRAY);  // 轉換為灰度圖像
+            cv.cvtColor(frame, gray, cv.COLOR_RGBA2GRAY);
 
             let faces = new cv.RectVector();
             let msize = new cv.Size(100, 100);
-            faceCascade.detectMultiScale(gray, faces, 1.1, 3, 0, msize, msize);  // 偵測人臉
+            faceCascade.detectMultiScale(gray, faces, 1.1, 3, 0, msize, msize);
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);  // 在 canvas 上繪製視頻流
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
             if (faces.size() > 0) {
                 let face = faces.get(0);
@@ -91,12 +100,12 @@
                 let eyeHeight = eyeWidth / 3;
 
                 console.log("👓 偵測到臉部，繪製眼鏡！", eyeX, eyeY, eyeWidth, eyeHeight);
-                ctx.drawImage(glasses, eyeX, eyeY, eyeWidth, eyeHeight);  // 在臉部繪製眼鏡
+                ctx.drawImage(glasses, eyeX, eyeY, eyeWidth, eyeHeight);
             } else {
                 console.log("❌ 未偵測到臉部！");
             }
 
-            frame.delete();  // 釋放圖像內存
+            frame.delete();
             gray.delete();
             faces.delete();
         }
