@@ -21,7 +21,13 @@
         ];
         let currentGlassesIndex = 0;
 
-        init();
+        // 檢查 WebXR 支援性
+        if (!navigator.xr) {
+            console.error("WebXR is not supported on this browser.");
+            alert("WebXR is not supported on this browser. Try using Chrome or Edge with HTTPS.");
+        } else {
+            init();
+        }
 
         function init() {
             // 建立場景
