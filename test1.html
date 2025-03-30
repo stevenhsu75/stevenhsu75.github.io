@@ -22,7 +22,7 @@
     <canvas id="canvas"></canvas>
 
     <!-- 載入 OpenCV.js -->
-    <script async src="https://docs.opencv.org/4.x/opencv.js"></script>
+    <script async src="https://docs.opencv.org/4.5.0/opencv.js"></script>
     
     <script>
         let video = document.getElementById('video');
@@ -33,10 +33,10 @@
         let faceCascade = null;
 
         // 等待 OpenCV.js 載入完成後執行
-        //cv.onRuntimeInitialized = () => {
-        //    console.log("✅ OpenCV.js 載入完成！");
+        cv.onRuntimeInitialized = () => {
+        console.log("✅ OpenCV.js 載入完成！");
             startFaceDetection();
-        //};
+        };
 
         function startFaceDetection() {
             // 確保 cv 已定義並且 OpenCV.js 正常初始化
