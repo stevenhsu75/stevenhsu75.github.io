@@ -35,7 +35,7 @@
         let canvas = document.getElementById('canvas');
         let ctx = canvas.getContext('2d');
         let glasses = new Image();
-        glasses.src = 'https://stevenhsu75.github.io/glasses.png';  // 確保圖片網址正確
+        glasses.src = 'glasses.png';  // 確保圖片網址正確
         let faceCascade = null;
 
         // 確保 OpenCV.js 完全載入後才執行
@@ -59,6 +59,8 @@
                     canvas.height = video.videoHeight;
                     setInterval(detectFace, 100);  // 每 100 毫秒偵測一次
                 };
+            }).catch((error) => {
+                console.error("❌ 無法啟動相機:", error);
             });
         }
 
@@ -97,4 +99,3 @@
         }
     </script>
 </body>
-</html>
