@@ -22,80 +22,74 @@
     <canvas id="canvas"></canvas>
 
     <!-- ✅ 使用 OpenCV.js CDN -->
-    <script async src="https://docs.opencv.org/4.x/opencv.js"></script>
+<script async src="https://docs.opencv.org/4.x/opencv.js"></script>
+<script>
+    let video = document.getElementById('video');
+    let canvas = document.getElementById('canvas');
+    let ctx = canvas.getContext('2d');
+    let glasses = new Image();
+    glasses.src = 'https://stevenhsu75.github.io/glasses.png';  // 確保圖片網址正確
+    let faceCascade = null;
 
-    <script>
-        let video = document.getElementById('video');
-        let canvas = document.getElementById('canvas');
-        let ctx = canvas.getContext('2d');
-        let glasses = new Image();
-        glasses.src = 'https://stevenhsu75.github.io/glasses.png';  // 確保圖片網址正確
-        let faceCascade = null;
+    // 確保 OpenCV 完全載入後才執行程式
+    cv.onRuntimeInitialized = () => {
+        console.log("✅ OpenCV.js 載入完成！");
+        startFaceDetection();
+    };
 
-        // ✅ 定期檢查 OpenCV.js 是否載入成功
-        let checkOpenCV = setInterval(() => {
-            if (typeof cv !== 'undefined') {
-                clearInterval(checkOpenCV);  // 停止檢查
-                console.log("✅ OpenCV.js 已載入成功！");
-                startFaceDetection();  // 開始執行臉部偵測
-            } else {
-                console.log("⏳ OpenCV.js 還在載入...");
-            }
-        }, 500); // 每 500 毫秒檢查一次
-
-        function startFaceDetection() {
-            if (typeof cv === 'undefined') {
-                console.error("❌ OpenCV.js 尚未載入！");
-                return;
-            }
-
-            // ✅ 載入人臉識別模型 (使用 OpenCV 官方模型)
-            faceCascade = new cv.CascadeClassifier();
-            faceCascade.load('https://raw.githubusercontent.com/opencv/opencv/master/data/haarcascades/haarcascade_frontalface_default.xml');
-
-            // ✅ 啟動相機
-            navigator.mediaDevices.getUserMedia({ video: true }).then((stream) => {
-                video.srcObject = stream;
-                video.onloadedmetadata = () => {
-                    video.play();
-                    canvas.width = video.videoWidth;
-                    canvas.height = video.videoHeight;
-                    setInterval(detectFace, 100);  // 每 100 毫秒偵測一次
-                };
-            });
+    function startFaceDetection() {
+        if (typeof cv === 'undefined') {
+            console.error("❌ OpenCV.js 尚未載入！");
+            return;
         }
 
-        function detectFace() {
-            if (typeof cv === 'undefined' || !faceCascade) return;
+        // 載入人臉識別模型 (使用 OpenCV 官方模型)
+        faceCascade = new cv.CascadeClassifier();
+        faceCascade.load('https://raw.githubusercontent.com/opencv/opencv/master/data/haarcascades/haarcascade_frontalface_default.xml');
 
-            let src = cv.imread(video);
-            let gray = new cv.Mat();
-            cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY);
+        // 啟動相機
+        navigator.mediaDevices.getUserMedia({ video: true }).then((stream) => {
+            video.srcObject = stream;
+            video.onloadedmetadata = () => {
+                video.play();
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                setInterval(detectFace, 100);  // 每 100 毫秒偵測一次
+            };
+        });
+    }
 
-            let faces = new cv.RectVector();
-            let msize = new cv.Size(100, 100);
-            faceCascade.detectMultiScale(gray, faces, 1.1, 3, 0, msize, msize);
+    function detectFace() {
+        if (typeof cv === 'undefined' || !faceCascade) return;
 
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        let src = cv.imread(video);
+        let gray = new cv.Mat();
+        cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY);
 
-            if (faces.size() > 0) {
-                let face = faces.get(0);
-                let eyeX = face.x + face.width * 0.15;
-                let eyeY = face.y + face.height * 0.3;
-                let eyeWidth = face.width * 0.7;
-                let eyeHeight = eyeWidth / 3;
+        let faces = new cv.RectVector();
+        let msize = new cv.Size(100, 100);
+        faceCascade.detectMultiScale(gray, faces, 1.1, 3, 0, msize, msize);
 
-                console.log("👓 偵測到臉部，繪製眼鏡！", eyeX, eyeY, eyeWidth, eyeHeight);
-                ctx.drawImage(glasses, eyeX, eyeY, eyeWidth, eyeHeight);
-            } else {
-                console.log("❌ 未偵測到臉部！");
-            }
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-            src.delete();
-            gray.delete();
-            faces.delete();
+        if (faces.size() > 0) {
+            let face = faces.get(0);
+            let eyeX = face.x + face.width * 0.15;
+            let eyeY = face.y + face.height * 0.3;
+            let eyeWidth = face.width * 0.7;
+            let eyeHeight = eyeWidth / 3;
+
+            console.log("👓 偵測到臉部，繪製眼鏡！", eyeX, eyeY, eyeWidth, eyeHeight);
+            ctx.drawImage(glasses, eyeX, eyeY, eyeWidth, eyeHeight);
+        } else {
+            console.log("❌ 未偵測到臉部！");
         }
-    </script>
+
+        src.delete();
+        gray.delete();
+        faces.delete();
+    }
+</script>
 </body>
 </html>
