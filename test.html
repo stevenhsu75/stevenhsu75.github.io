@@ -7,17 +7,15 @@
     <!-- WebXR + Three.js 眼鏡切換應用 -->
     <script type="module">
         // 引入 Three.js 及相關模組
-        import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.144.0/build/three.module.js';
-        import { XRButton } from 'https://cdn.jsdelivr.net/npm/three@0.144.0/examples/jsm/webxr/XRButton.js';
-        import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.144.0/examples/jsm/loaders/GLTFLoader.js';
-        import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.144.0/examples/jsm/controls/OrbitControls.js';
+        import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.175.0/build/three.module.js';
+        import { XRButton } from 'https://cdn.jsdelivr.net/npm/three@0.175.0/examples/jsm/webxr/XRButton.js';
+        import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.175.0/examples/jsm/loaders/GLTFLoader.js';
+        import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.175.0/examples/jsm/controls/OrbitControls.js';
 
         let scene, camera, renderer, controller;
         let glasses;
         const glassesModels = [
-            'glasses1.glb',
-            'glasses2.glb',
-            'glasses3.glb'
+            'glasses.glb'
         ];
         let currentGlassesIndex = 0;
 
