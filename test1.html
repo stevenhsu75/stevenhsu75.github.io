@@ -52,7 +52,7 @@
 
             // 載入人臉識別模型 (Haar Cascade)
             let faceCascade = new cv.CascadeClassifier();
-            let success = faceCascade.load('haarcascade_frontalface_default.xml');
+            let success = faceCascade.load('https://raw.githubusercontent.com/opencv/opencv/master/data/haarcascades/haarcascade_frontalface_default.xml');
 if (!success) {
     console.error("❌ 無法載入 Haar Cascade XML 檔案！");
     return;
