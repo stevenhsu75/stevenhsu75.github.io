@@ -1,24 +1,99 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zappar WebAR 換眼鏡</title>
-    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
-    <script src="https://libs.zappar.com/aframe/2.0.0/zappar-aframe.min.js"></script>
-</head>
-<body style="margin: 0; overflow: hidden;">
-    <a-scene zappar-camera arjs>
-        <!-- 設置 Zappar 相機 -->
-        <a-entity zappar-camera></a-entity>
+    <title>WebXR Glasses</title>
+    <!-- WebXR + Three.js 眼鏡切換應用 -->
+    <script type="module">
+        // 引入 Three.js 及相關模組
+        import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.144.0/build/three.module.js';
+        import { XRButton } from 'https://cdn.jsdelivr.net/npm/three@0.144.0/examples/jsm/webxr/XRButton.js';
+        import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.144.0/examples/jsm/loaders/GLTFLoader.js';
+        import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.144.0/examples/jsm/controls/OrbitControls.js';
 
-        <!-- 臉部追蹤（Face Tracking） -->
-        <a-entity zappar-face>
-            <!-- 3D 眼鏡模型 -->
-            <a-entity position="0 0 0" scale="1 1 1"
-                      gltf-model="https://stevenhsu75.github.io/glasses.glb">
-            </a-entity>
-        </a-entity>
-    </a-scene>
+        let scene, camera, renderer, controller;
+        let glasses;
+        const glassesModels = [
+            'models/glasses1.glb',
+            'models/glasses2.glb',
+            'models/glasses3.glb'
+        ];
+        let currentGlassesIndex = 0;
+
+        init();
+
+        function init() {
+            // 建立場景
+            scene = new THREE.Scene();
+            
+            // 設置相機
+            camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 10);
+            
+            // 設置渲染器
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.xr.enabled = true; // 啟用 WebXR
+            document.body.appendChild(renderer.domElement);
+            document.body.appendChild(XRButton.createButton(renderer)); // 添加 XR 按鈕
+
+            // 添加光源
+            const light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1);
+            scene.add(light);
+
+            // 添加 OrbitControls（方便非 XR 模式調整視角）
+            const controls = new OrbitControls(camera, renderer.domElement);
+            controls.target.set(0, 1.6, 0);
+            controls.update();
+
+            // 設置 XR 控制器，監聽手勢事件來切換眼鏡
+            controller = renderer.xr.getController(0);
+            controller.addEventListener('selectstart', changeGlasses);
+            scene.add(controller);
+
+            // 載入初始眼鏡模型
+            loadGlasses(glassesModels[currentGlassesIndex]);
+
+            // 監聽視窗大小變化
+            window.addEventListener('resize', onWindowResize);
+
+            // 啟動渲染循環
+            renderer.setAnimationLoop(render);
+        }
+
+        function loadGlasses(modelPath) {
+            // 載入 3D 眼鏡模型
+            if (glasses) {
+                scene.remove(glasses);
+            }
+            const loader = new GLTFLoader();
+            loader.load(modelPath, function (gltf) {
+                glasses = gltf.scene;
+                glasses.scale.set(0.5, 0.5, 0.5); // 設定縮放比例
+                glasses.position.set(0, 1.6, -0.5); // 調整眼鏡位置
+                scene.add(glasses);
+            });
+        }
+
+        function changeGlasses() {
+            // 切換至下一副眼鏡
+            currentGlassesIndex = (currentGlassesIndex + 1) % glassesModels.length;
+            loadGlasses(glassesModels[currentGlassesIndex]);
+        }
+
+        function onWindowResize() {
+            // 確保畫面隨視窗大小變化而更新
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function render() {
+            // 持續渲染場景
+            renderer.render(scene, camera);
+        }
+    </script>
+</head>
+<body>
 </body>
 </html>
