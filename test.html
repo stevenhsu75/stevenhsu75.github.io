@@ -51,6 +51,7 @@
 
     // 初始化Three.js场景
     function initThreeJS() {
+      console.log("initThreeJS！");
       scene = new THREE.Scene();
       camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
       renderer = new THREE.WebGLRenderer({ alpha: true });
@@ -101,11 +102,13 @@
 
       // 设置视频的位置
       videoPlane.position.z = -5;
+      console.log("initVideoBackground！");
     }
 
     // 加载眼镜模型
     function loadGlassesModel(modelPath, callback) {
       loader.load(modelPath, (gltf) => {
+        console.log("loadGlassesModel！");
         const model = gltf.scene;
         model.scale.set(0.1, 0.1, 0.1);  // 根据需要调整大小
         callback(model);
@@ -117,14 +120,18 @@
     // 启动摄像头
     async function startCamera() {
       try {
+        console.log("startCamera！");
         const stream = await navigator.mediaDevices.getUserMedia({ video: true });
         const videoElement = document.createElement('video');
         videoElement.srcObject = stream;
+        console.log("startCamera1！");
         videoElement.play();
+        console.log("startCamera2！");
         videoElement.onloadedmetadata = () => {
           videoElement.width = window.innerWidth;
           videoElement.height = window.innerHeight;
         };
+        console.log("startCamera3！");
         document.body.appendChild(videoElement);
         videoStream = stream;
       } catch (err) {
@@ -134,6 +141,7 @@
 
     // 切换眼镜
     function switchGlasses() {
+      console.log("switchGlasses！");
       if (currentModel === model1) {
         model1.visible = false;
         model2.visible = true;
@@ -155,15 +163,19 @@
 
     // 启动AR按钮点击事件
     arButton.addEventListener('click', () => {
+      console.log("arButton！");
       startCamera(); // 启动摄像头
+      console.log("arButton1！");
       arButton.style.display = 'none'; // 隐藏按钮
       switchButton.style.display = 'block'; // 显示切换眼镜按钮
       initThreeJS(); // 初始化Three.js
       animate(); // 开始渲染动画
+      console.log("arButton2！");
     });
 
     // 切换眼镜按钮点击事件
     switchButton.addEventListener('click', () => {
+      console.log("switchButton！");
       switchGlasses();
     });
   </script>
