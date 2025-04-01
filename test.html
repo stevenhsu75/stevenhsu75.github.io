@@ -1,95 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebXR GLB Viewer</title>
-    <style>
-        body { margin: 0; overflow: hidden; }
-        canvas { display: block; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AR 眼镜换戴</title>
+  <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+  <!-- 使用 jsDelivr CDN 来加载 AR.js -->
+  <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <style>
+    body { margin: 0; }
+    canvas { display: block; }
+  </style>
 </head>
-<body>
-    <script type="module">
-        // 引用本地文件 (相对路径)
-        import * as THREE from './three.module.js';  // 确保路径正确
-        import { GLTFLoader } from './GLTFLoader.js';  // 确保路径正确
+<body style="margin: 0; overflow: hidden;">
+  <!-- 使用 A-Frame 和 AR.js 创建 AR 场景 -->
+  <a-scene embedded arjs>
+    <!-- 定义标记的大小和类型 -->
+    <a-marker preset="hiro">
+      <!-- 3D 模型的位置和尺度 -->
+      <a-entity id="glasses" position="0 0 0" scale="0.2 0.2 0.2">
+        <!-- 初始显示眼镜模型 -->
+        <a-box color="blue"></a-box>
+      </a-entity>
+    </a-marker>
+    
+    <!-- 头部跟踪器，帮助用户进行交互 -->
+    <a-entity camera></a-entity>
+  </a-scene>
 
-        let scene, camera, renderer, controller;
-        let loader, model;
-        let xrSession = null;
-        let xrReferenceSpace = null;
+  <script>
+    // 初始化切换眼镜模型的功能
+    let glassesEntity = document.querySelector('#glasses');
 
-        const init = async () => {
-            scene = new THREE.Scene();
-            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    // 模拟不同眼镜模型的数据
+    const glassesModels = [
+      { color: 'blue', shape: 'box' },
+      { color: 'red', shape: 'sphere' },
+      { color: 'green', shape: 'cylinder' }
+    ];
 
-            renderer = new THREE.WebGLRenderer({ antialias: true });
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            document.body.appendChild(renderer.domElement);
+    let currentModelIndex = 0;
 
-            // 加载 GLB 模型
-            loader = new GLTFLoader();
-            loader.load('glasses.glb', (gltf) => {
-                model = gltf.scene;
-                scene.add(model);
-            });
+    // 函数：切换眼镜模型
+    function switchGlasses() {
+      currentModelIndex = (currentModelIndex + 1) % glassesModels.length;
+      const model = glassesModels[currentModelIndex];
+      
+      // 切换颜色和形状
+      glassesEntity.setAttribute('geometry', { primitive: model.shape });
+      glassesEntity.setAttribute('material', { color: model.color });
+    }
 
-            // 设置 WebXR 支援
-            if (navigator.xr) {
-                const xrButton = document.createElement('button');
-                xrButton.innerText = 'Enter VR';
-                document.body.appendChild(xrButton);
-
-                xrButton.addEventListener('click', startXR);
-
-                async function startXR() {
-                    if (xrSession) return;  // 防止重复启动
-
-                    try {
-                        const session = await navigator.xr.requestSession('immersive-vr');
-                        xrSession = session;
-                        xrReferenceSpace = await xrSession.requestReferenceSpace('local');
-                        xrSession.addEventListener('end', onXRSessionEnded);
-
-                        renderer.xr.enabled = true;
-                        renderer.xr.setReferenceSpace(xrReferenceSpace);
-
-                        xrSession.requestAnimationFrame(onXRFrame);
-                    } catch (error) {
-                        console.error('Failed to start XR session:', error);
-                    }
-                }
-
-                function onXRSessionEnded() {
-                    xrSession = null;
-                    xrReferenceSpace = null;
-                }
-
-                function onXRFrame(time, frame) {
-                    const session = frame.session;
-                    const pose = frame.getViewerPose(xrReferenceSpace);
-
-                    if (pose) {
-                        // 在这里处理模型的位置和更新逻辑
-                    }
-
-                    renderer.render(scene, camera);
-                    session.requestAnimationFrame(onXRFrame);
-                }
-            }
-
-            window.addEventListener('resize', onResize);
-        };
-
-        function onResize() {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        }
-
-        // 初始化 Three.js 和 WebXR
-        init();
-    </script>
+    // 监听点击事件来切换眼镜模型
+    window.addEventListener('click', switchGlasses);
+  </script>
 </body>
 </html>
