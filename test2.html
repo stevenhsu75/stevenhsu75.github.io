@@ -10,12 +10,12 @@
   </style>
 </head>
 <body>
-  <!-- 使用非模塊版 Three.js -->
-  <script src="https://cdn.jsdelivr.net/npm/three@0.150.0/build/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.150.0/examples/jsm/loaders/GLTFLoader.js"></script>
- 
-  <script>
-    // 在這裡直接使用 THREE 物件
+  <!-- 使用 ES 模塊方式載入 Three.js 和 GLTFLoader -->
+  <script type="module">
+    import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.150.0/build/three.module.js';
+    import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.150.0/examples/jsm/loaders/GLTFLoader.js';
+
+    // 創建場景
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer();
@@ -23,23 +23,23 @@
     document.body.appendChild(renderer.domElement);
 
     // 添加光源
-    const light = new THREE.AmbientLight(0x404040, 2);
+    const light = new THREE.AmbientLight(0x404040, 2); // 環境光
     scene.add(light);
 
-    // 加載 GLB 眼鏡模型
-    const loader = new THREE.GLTFLoader();
+    // 使用 GLTFLoader 加載模型
+    const loader = new GLTFLoader(); // 這是正確的構造函數
     let glasses;
 
     loader.load('glasses.glb', (gltf) => {
       glasses = gltf.scene;
-      glasses.scale.set(0.1, 0.1, 0.1);
-      glasses.position.set(0, -1, 0);
+      glasses.scale.set(0.1, 0.1, 0.1); // 根據需要調整眼鏡的大小
+      glasses.position.set(0, -1, 0); // 位置調整
       scene.add(glasses);
     }, undefined, (error) => {
       console.error(error);
     });
 
-    // 添加立方體物體來檢查相機和光源
+    // 添加旋轉立方體來檢查相機和光源
     const geometry = new THREE.BoxGeometry();
     const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
     const cube = new THREE.Mesh(geometry, material);
@@ -51,16 +51,28 @@
     // 渲染循環
     function animate() {
       requestAnimationFrame(animate);
+
+      // 使立方體旋轉
       cube.rotation.x += 0.01;
       cube.rotation.y += 0.01;
 
+      // 使眼鏡旋轉（如果已加載）
       if (glasses) {
         glasses.rotation.y += 0.01;
       }
 
+      // 渲染場景
       renderer.render(scene, camera);
     }
 
+    // 響應式設置：視窗大小變化時更新
+    window.addEventListener('resize', () => {
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+    });
+
+    // 開始動畫循環
     animate();
   </script>
 </body>
