@@ -58,6 +58,7 @@
         // 確保在用戶按下按鈕後才啟動 AR
         document.getElementById('start-btn').addEventListener('click', function () {
             // 這裡是可以根據需求調整的，將 AR 啟動。
+            console.log("按下按鈕！");
             const scene = document.querySelector('a-scene');
             scene.setAttribute('arjs', 'sourceType: webcam;');
         });
