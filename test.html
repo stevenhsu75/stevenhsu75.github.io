@@ -211,7 +211,9 @@
     }
 
     // 初始化面部识别
-    setupFaceAPI();
+    window.onload = () => {
+  setupFaceAPI();  // 确保在页面加载完成后运行
+}
   </script>
 </body>
 </html>
