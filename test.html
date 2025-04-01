@@ -3,25 +3,37 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AR 眼镜展示</title>
-  <!-- 使用 A-Frame 和 AR.js -->
-  <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-  <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js">
+  <title>Zappar AR 眼镜展示</title>
+  <script src="https://libs.zappar.com/zappar-js/2.2.7/zappar.js"></script>
   <style>
-    body { margin: 0; }
-    canvas { display: block; }
+    body { margin: 0; padding: 0; overflow: hidden; }
+    #ar-container { position: absolute; width: 100%; height: 100%; }
   </style>
 </head>
-<body style="margin: 0; overflow: hidden;">
-  <a-scene embedded arjs>
-    <!-- 使用 AR 标记（例如 Hiro 标记） -->
-    <a-marker preset="hiro">
-      <!-- 加载 3D 眼镜模型 -->
-      <a-entity gltf-model="url(https://stevenhsu75.github.io/glasses.glb)" scale="0.2 0.2 0.2" position="0 0 0"></a-entity>
-    </a-marker>
+<body>
+  <div id="ar-container"></div>
 
-    <!-- 相机配置 -->
-    <a-entity camera></a-entity>
-  </a-scene>
+  <script>
+    // 初始化 Zappar AR
+    const container = document.getElementById('ar-container');
+    const zappar = new Zappar.WebAR();
+
+    // 创建 AR 跟踪器，使用自定义标记
+    const marker = new Zappar.MarkerTracker();
+    
+    // 加载 3D 眼镜模型（确保路径正确）
+    const glassesModel = new Zappar.Model3D('https://stevenhsu75.github.io/glasses.glb');
+    glassesModel.setScale(0.2, 0.2, 0.2);
+    glassesModel.setPosition(0, 0, 0);
+    
+    // 将 3D 模型与标记绑定
+    marker.add(glassesModel);
+
+    // 初始化 AR 跟踪
+    zappar.start(container, marker);
+
+    // 处理设备摄像头
+    zappar.setCamera(device.camera);
+  </script>
 </body>
 </html>
