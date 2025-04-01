@@ -3,21 +3,130 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WebAR Example with AR.js and A-Frame</title>
-  <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.js"></script>
+  <title>WebXR AR 眼镜换戴示例</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+    #ar-button {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      padding: 10px;
+      background: rgba(0, 0, 0, 0.6);
+      color: white;
+      font-size: 18px;
+      border-radius: 8px;
+      z-index: 10;
+    }
+  </style>
 </head>
-<body style="margin: 0; overflow: hidden;">
-  <!-- 定義 AR 場景 -->
-  <a-scene embedded arjs>
-    <!-- 使用預設的 marker "hiro" -->
-    <a-marker preset="hiro">
-      <!-- 加載 3D 模型（眼鏡）並調整位置和大小 -->
-      <a-entity gltf-model="url(glasses.glb)" scale="1 1 1" position="0 0 -1"></a-entity>
-    </a-marker>
+<body>
+  <button id="ar-button">启动 AR</button>
 
-    <!-- 設定相機 -->
-    <a-entity camera></a-entity>
-  </a-scene>
+  <!-- 引入 Three.js 和 GLTFLoader -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.137.5/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.137.5/examples/js/loaders/GLTFLoader.js"></script>
+
+  <script>
+    const arButton = document.getElementById('ar-button');
+    let xrSession = null;
+    let xrReferenceSpace = null;
+    let xrViewerPose = null;
+    let camera, scene, renderer, model;
+    const loader = new THREE.GLTFLoader(); // GLTFLoader实例
+    let glassesModel = null;
+
+    // 初始化WebXR
+    async function initXR() {
+      if (navigator.xr) {
+        try {
+          const supported = await navigator.xr.isSessionSupported('immersive-ar');
+          if (supported) {
+            arButton.style.display = 'block';
+            arButton.addEventListener('click', startXRSession);
+          } else {
+            console.error('AR不被支持');
+          }
+        } catch (e) {
+          console.error('WebXR API初始化失败', e);
+        }
+      }
+    }
+
+    // 启动AR会话
+    async function startXRSession() {
+      try {
+        xrSession = await navigator.xr.requestSession('immersive-ar', {
+          requiredFeatures: ['hit-test'],
+        });
+
+        xrSession.addEventListener('end', onSessionEnd);
+        xrReferenceSpace = await xrSession.requestReferenceSpace('local');
+        xrSession.requestAnimationFrame(onXRFrame);
+
+        arButton.style.display = 'none'; // 隐藏启动按钮
+        initThreeJS();
+      } catch (e) {
+        console.error('启动AR会话失败', e);
+      }
+    }
+
+    // 初始化 Three.js 渲染器和场景
+    function initThreeJS() {
+      scene = new THREE.Scene();
+      camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+      renderer = new THREE.WebGLRenderer({ alpha: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      document.body.appendChild(renderer.domElement);
+
+      loadGlassesModel(); // 加载眼镜模型
+    }
+
+    // 加载 glasses.glb 3D眼镜模型
+    function loadGlassesModel() {
+      loader.load('glasses.glb', (gltf) => {
+        glassesModel = gltf.scene;
+        glassesModel.scale.set(0.1, 0.1, 0.1); // 适当缩放眼镜模型
+        glassesModel.position.set(0, 0, -1); // 放置在合适的3D位置
+
+        scene.add(glassesModel); // 将眼镜模型添加到场景中
+      }, undefined, (error) => {
+        console.error('加载眼镜模型失败', error);
+      });
+    }
+
+    // 每一帧调用的函数
+    function onXRFrame(t, frame) {
+      const session = frame.session;
+      const viewerPose = frame.getViewerPose(xrReferenceSpace);
+
+      if (viewerPose) {
+        xrViewerPose = viewerPose;
+
+        // 更新渲染
+        renderer.render(scene, camera);
+
+        session.requestAnimationFrame(onXRFrame);
+      }
+    }
+
+    // AR会话结束时的处理
+    function onSessionEnd() {
+      xrSession = null;
+      xrReferenceSpace = null;
+      xrViewerPose = null;
+      arButton.style.display = 'block'; // 再次显示启动按钮
+      document.body.removeChild(renderer.domElement); // 移除渲染器
+    }
+
+    // 初始化
+    function init() {
+      initXR();
+    }
+
+    init();
+  </script>
 </body>
 </html>
