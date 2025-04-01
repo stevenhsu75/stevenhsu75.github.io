@@ -3,19 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WebAR Example with AR.js</title>
+  <title>WebAR Example with AR.js and A-Frame</title>
   <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.js"></script>
 </head>
 <body style="margin: 0; overflow: hidden;">
+  <!-- 定義 AR 場景 -->
   <a-scene embedded arjs>
-    <!-- 定義一個 marker，用來觸發 AR -->
+    <!-- 使用預設的 marker "hiro" -->
     <a-marker preset="hiro">
-      <!-- 加載 3D 模型 -->
-      <a-entity gltf-model="url(glasses.glb)" scale="0.5 0.5 0.5" position="0 0 0"></a-entity>
+      <!-- 加載 3D 模型（眼鏡）並調整位置和大小 -->
+      <a-entity gltf-model="url(glasses.glb)" scale="1 1 1" position="0 0 -1"></a-entity>
     </a-marker>
 
-    <!-- 設定地面 -->
+    <!-- 設定相機 -->
     <a-entity camera></a-entity>
   </a-scene>
 </body>
