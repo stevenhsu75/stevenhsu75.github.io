@@ -33,16 +33,20 @@
     <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.js"></script>
 </head>
 <body>
-    <button id="start-btn">啟動 AR</button>
-
     <a-scene embedded arjs="sourceType: webcam; detectionMode: mono;">
+
+        <!-- 載入 GLB 模型 -->
+        <a-assets>
+            <!-- 載入您的 GLB 眼鏡模型 -->
+            <a-asset-item id="glasses-model" src="glasses.glb"></a-asset-item>
+        </a-assets>
 
         <!-- 定義 AR 面部追蹤標籤 -->
         <a-entity id="face" 
                   face="tracking: true;" 
                   position="0 1.6 -1">
-            <!-- 這裡放置眼鏡模型 -->
-            <a-box color="#00f" position="0 0.1 0" scale="0.5 0.2 0.05"></a-box> <!-- 這是眼鏡的簡單模型 -->
+            <!-- 使用 GLB 模型來取代眼鏡框 -->
+            <a-gltf-model src="#glasses-model" scale="0.3 0.3 0.3" position="0 0.1 0"></a-gltf-model> <!-- 這是眼鏡的 GLB 模型 -->
         </a-entity>
 
         <a-camera></a-camera>
