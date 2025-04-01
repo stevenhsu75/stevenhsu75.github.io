@@ -28,15 +28,16 @@
   <script>
     window.onload = function () {
       // 确保 Zappar SDK 已经加载完成
+      console.log("0！");
       if (typeof Zappar !== "undefined") {
         const container = document.getElementById('ar-container');
-
+console.log("1！");
         // 使用 Zappar SDK 中的 WebAR 初始化
         const webAR = new Zappar.WebAR();
-
+console.log("12！");
         // 使用 cameraStart 来启用摄像头
         webAR.cameraStart();
-
+console.log("123！");
         // 创建一个标记跟踪器
         const markerTracker = new Zappar.MarkerTracker();
 
