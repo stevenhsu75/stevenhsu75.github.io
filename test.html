@@ -183,9 +183,13 @@
     window.onload = async function () {
       try {
         // 加载模型文件
+        console.log("加载模型1！");
       await faceapi.nets.ssdMobilenetv1.loadFromUri('https://github.com/justadudewhohacks/face-api.js/blob/master/weights');
+        console.log("加载模型12！");
       await faceapi.nets.faceLandmark68Net.loadFromUri('https://github.com/justadudewhohacks/face-api.js/blob/master/weights');
+        console.log("加载模型13！");
       await faceapi.nets.faceRecognitionNet.loadFromUri('https://github.com/justadudewhohacks/face-api.js/blob/master/weights');
+        console.log("加载模型14！");
       
       const videoElement = document.createElement('video');
       document.body.append(videoElement);
