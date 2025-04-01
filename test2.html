@@ -10,10 +10,11 @@
   </style>
 </head>
 <body>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.150.0/build/three.module.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.150.0/examples/jsm/loaders/GLTFLoader.js"></script>
+  <!-- 使用最新版本的 Three.js ES Module -->
+  <script type="module">
+    import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.150.0/build/three.module.js';
+    import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.150.0/examples/jsm/loaders/GLTFLoader.js';
 
-  <script>
     // 基本設定
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -26,7 +27,7 @@
     scene.add(light);
 
     // 目標是加載GLB眼鏡模型
-    const loader = new THREE.GLTFLoader();
+    const loader = new GLTFLoader();
     let glasses;
 
     // 加載GLB模型（請替換為您自己眼鏡模型的路徑）
