@@ -72,8 +72,8 @@
       // 加载第二个眼镜模型
       loadGlassesModel('glasses.glb', (model) => {
         model2 = model;
-        model2.position.set(10, 10, 10); // 调整眼镜模型位置
-        model2.scale.set(1, 1, 1);  // 调整眼镜模型大小
+        model2.position.set(0, -0.5, -2); // 调整眼镜模型位置
+        model2.scale.set(0.5, 0.5, 0.5);  // 调整眼镜模型大小
         model2.visible = false; // 默认隐藏
         scene.add(model2);
       });
