@@ -82,7 +82,8 @@
     // 初始化视频背景
     function initVideoBackground() {
       video = document.createElement('video');
-      video.src = 'https://www.w3schools.com/html/mov_bbb.mp4'; // 可替换成你自己的视频
+      video.src = 'mov_bbb.mp4'; // 可替换成你自己的视频
+      video.crossOrigin = "anonymous";  // 添加 CORS 设置
       video.load();
       video.play();
       video.loop = true;
