@@ -3,57 +3,25 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AR 眼镜换戴</title>
+  <title>AR 眼镜展示</title>
+  <!-- 使用 A-Frame 和 AR.js -->
   <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-  <!-- 使用 jsDelivr CDN 来加载 AR.js -->
-  <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
-  
+  <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js">
   <style>
     body { margin: 0; }
     canvas { display: block; }
   </style>
 </head>
 <body style="margin: 0; overflow: hidden;">
-  <!-- 使用 A-Frame 和 AR.js 创建 AR 场景 -->
   <a-scene embedded arjs>
-    <!-- 定义标记的大小和类型 -->
+    <!-- 使用 AR 标记（例如 Hiro 标记） -->
     <a-marker preset="hiro">
-      <!-- 使用 GLB 模型代替基本形状 -->
-      <a-entity id="glasses" position="0 0 0" scale="0.2 0.2 0.2">
-        <!-- 加载 GLB 文件 -->
-        <a-gltf-model src="glasses.glb" scale="0.2 0.2 0.2" position="0 0 0"></a-gltf-model>
-      </a-entity>
+      <!-- 加载 3D 眼镜模型 -->
+      <a-entity gltf-model="url(https://stevenhsu75.github.io/glasses.glb)" scale="0.2 0.2 0.2" position="0 0 0"></a-entity>
     </a-marker>
-    
-    <!-- 头部跟踪器，帮助用户进行交互 -->
+
+    <!-- 相机配置 -->
     <a-entity camera></a-entity>
   </a-scene>
-
-  <script>
-    // 初始化切换眼镜模型的功能
-    let glassesEntity = document.querySelector('#glasses');
-
-    // 模拟不同眼镜模型的数据
-    const glassesModels = [
-      { src: 'glasses.glb', scale: "0.2 0.2 0.2" },
-      { src: 'glasses.glb', scale: "0.2 0.2 0.2" },
-      { src: 'glasses.glb', scale: "0.2 0.2 0.2" }
-    ];
-
-    let currentModelIndex = 0;
-
-    // 切换眼镜模型的函数
-    function switchGlasses() {
-      currentModelIndex = (currentModelIndex + 1) % glassesModels.length;
-      const model = glassesModels[currentModelIndex];
-      
-      // 更新模型的源路径和比例
-      glassesEntity.setAttribute('gltf-model', { src: model.src });
-      glassesEntity.setAttribute('scale', model.scale);
-    }
-
-    // 监听点击事件来切换眼镜模型
-    window.addEventListener('click', switchGlasses);
-  </script>
 </body>
 </html>
