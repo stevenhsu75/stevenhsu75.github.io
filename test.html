@@ -3,12 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AR 眼鏡示範</title>
-    <style><!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WebXR GLB Viewer</title>
     <style>
         body { margin: 0; overflow: hidden; }
@@ -16,84 +10,85 @@
     </style>
 </head>
 <body>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/loaders/GLTFLoader.js"></script>
-    <script>
-let scene, camera, renderer, controller;
-let loader, model;
-let xrSession = null;
-let xrReferenceSpace = null;
+    <script type="module">
+        import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.module.js';
+        import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/jsm/loaders/GLTFLoader.js';
 
-const init = async () => {
-    scene = new THREE.Scene();
-    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        let scene, camera, renderer, controller;
+        let loader, model;
+        let xrSession = null;
+        let xrReferenceSpace = null;
 
-    renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    document.body.appendChild(renderer.domElement);
+        const init = async () => {
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
-    // 加載 GLB 模型
-    loader = new THREE.GLTFLoader();
-    loader.load('glasses.glb', (gltf) => {
-        model = gltf.scene;
-        scene.add(model);
-    });
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
 
-    // 設定 WebXR 支援
-    if (navigator.xr) {
-        const xrButton = document.createElement('button');
-        xrButton.innerText = 'Enter VR';
-        document.body.appendChild(xrButton);
+            // 加載 GLB 模型
+            loader = new GLTFLoader();
+            loader.load('glasses.glb', (gltf) => {
+                model = gltf.scene;
+                scene.add(model);
+            });
 
-        xrButton.addEventListener('click', startXR);
+            // 設定 WebXR 支援
+            if (navigator.xr) {
+                const xrButton = document.createElement('button');
+                xrButton.innerText = 'Enter VR';
+                document.body.appendChild(xrButton);
 
-        async function startXR() {
-            if (xrSession) return;  // 防止重複啟動
+                xrButton.addEventListener('click', startXR);
 
-            try {
-                const session = await navigator.xr.requestSession('immersive-vr');
-                xrSession = session;
-                xrReferenceSpace = await xrSession.requestReferenceSpace('local');
-                xrSession.addEventListener('end', onXRSessionEnded);
+                async function startXR() {
+                    if (xrSession) return;  // 防止重複啟動
 
-                renderer.xr.enabled = true;
-                renderer.xr.setReferenceSpace(xrReferenceSpace);
+                    try {
+                        const session = await navigator.xr.requestSession('immersive-vr');
+                        xrSession = session;
+                        xrReferenceSpace = await xrSession.requestReferenceSpace('local');
+                        xrSession.addEventListener('end', onXRSessionEnded);
 
-                xrSession.requestAnimationFrame(onXRFrame);
-            } catch (error) {
-                console.error('Failed to start XR session:', error);
+                        renderer.xr.enabled = true;
+                        renderer.xr.setReferenceSpace(xrReferenceSpace);
+
+                        xrSession.requestAnimationFrame(onXRFrame);
+                    } catch (error) {
+                        console.error('Failed to start XR session:', error);
+                    }
+                }
+
+                function onXRSessionEnded() {
+                    xrSession = null;
+                    xrReferenceSpace = null;
+                }
+
+                function onXRFrame(time, frame) {
+                    const session = frame.session;
+                    const pose = frame.getViewerPose(xrReferenceSpace);
+
+                    if (pose) {
+                        // 在這裡處理你的模型位置和更新邏輯
+                    }
+
+                    renderer.render(scene, camera);
+                    session.requestAnimationFrame(onXRFrame);
+                }
             }
+
+            window.addEventListener('resize', onResize);
+        };
+
+        function onResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
         }
 
-        function onXRSessionEnded() {
-            xrSession = null;
-            xrReferenceSpace = null;
-        }
-
-        function onXRFrame(time, frame) {
-            const session = frame.session;
-            const pose = frame.getViewerPose(xrReferenceSpace);
-
-            if (pose) {
-                // 在這裡處理你的模型位置和更新邏輯
-            }
-
-            renderer.render(scene, camera);
-            session.requestAnimationFrame(onXRFrame);
-        }
-    }
-
-    window.addEventListener('resize', onResize);
-};
-
-function onResize() {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-}
-
-// 初始化 Three.js 和 WebXR
-init();
+        // 初始化 Three.js 和 WebXR
+        init();
     </script>
 </body>
 </html>
