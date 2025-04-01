@@ -40,7 +40,10 @@
         });
 
         // 初始化模型加载
-         window.onload = loadModels;
+        window.onload = async () => {
+            await loadModels(); // 等待模型加载
+        };
+
     </script>
 </body>
 </html>
