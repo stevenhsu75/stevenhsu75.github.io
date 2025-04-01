@@ -29,26 +29,27 @@
     window.onload = function () {
       if (typeof Zappar !== "undefined") {
         const container = document.getElementById('ar-container');
-
+console.log("1！");
         // 1. 初始化 AR 会话
         const arSession = new Zappar.AR();  // 初始化 AR
-
+console.log("12！");
         // 2. 创建标记跟踪器
         const markerTracker = new Zappar.MarkerTracker();
-
+console.log("13！");
         // 3. 加载 3D 模型（例如眼镜模型）
         const glassesModel = new Zappar.Model3D('https://stevenhsu75.github.io/glasses.glb');
         glassesModel.setScale(0.2, 0.2, 0.2);  // 设置模型的大小
         glassesModel.setPosition(0, 0, 0);    // 设置位置
-
+console.log("14！");
         // 4. 将模型添加到标记跟踪器
         markerTracker.add(glassesModel);
-
+console.log("15！");
         // 5. 启动 AR 环境
         arSession.start(container);  // 启动 AR 环境，传入容器元素
-
+console.log("16！");
         // 6. 启动标记跟踪
         arSession.track(markerTracker);  // 启动标记跟踪器
+        console.log("17！");
       } else {
         console.error("Zappar SDK 加载失败，无法初始化 AR。");
       }
