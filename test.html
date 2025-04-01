@@ -3,114 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebXR Glasses</title>
-    <!-- WebXR + Three.js 眼鏡切換應用 -->
-    <script type="module">
-        // 引入 Three.js 及相關模組
-        import * as THREE from 'https://esm.sh/three@0.152.0/build/three.module.js';
-        import { XRButton } from 'https://esm.sh/three@0.152.0/examples/jsm/webxr/XRButton.js';
-        import { GLTFLoader } from 'https://esm.sh/three@0.152.0/examples/jsm/loaders/GLTFLoader.js';
-        import { OrbitControls } from 'https://esm.sh/three@0.152.0/examples/jsm/controls/OrbitControls.js';
-
-        let scene, camera, renderer, controller;
-        let glasses;
-        const glassesModels = [
-            'glasses.glb',
-            'glasses.glb',
-            'glasses.glb'
-        ];
-        let currentGlassesIndex = 0;
-
-        // 檢查 WebXR 支援性
-        async function checkWebXRSupport() {
-            if (!navigator.xr) {
-                console.error("WebXR is not supported on this browser.");
-                alert("WebXR is not supported on this browser. Try using Chrome or Edge with HTTPS.");
-                return false;
-            }
-            try {
-                await navigator.xr.isSessionSupported('immersive-vr');
-                return true;
-            } catch (error) {
-                console.error("WebXR immersive-vr session is not supported.", error);
-                alert("WebXR immersive-vr session is not supported.");
-                return false;
-            }
+    <title>AR換眼鏡 Demo</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
         }
-
-        async function init() {
-            if (!await checkWebXRSupport()) return;
-            // 建立場景
-            scene = new THREE.Scene();
-            
-            // 設置相機
-            camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 10);
-            
-            // 設置渲染器
-            renderer = new THREE.WebGLRenderer({ antialias: true });
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.xr.enabled = true; // 啟用 WebXR
-            document.body.appendChild(renderer.domElement);
-            document.body.appendChild(XRButton.createButton(renderer)); // 添加 XR 按鈕
-
-            // 添加光源
-            const light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1);
-            scene.add(light);
-
-            // 添加 OrbitControls（方便非 XR 模式調整視角）
-            const controls = new OrbitControls(camera, renderer.domElement);
-            controls.target.set(0, 1.6, 0);
-            controls.update();
-
-            // 設置 XR 控制器，監聽手勢事件來切換眼鏡
-            controller = renderer.xr.getController(0);
-            controller.addEventListener('selectstart', changeGlasses);
-            scene.add(controller);
-
-            // 載入初始眼鏡模型
-            loadGlasses(glassesModels[currentGlassesIndex]);
-
-            // 監聽視窗大小變化
-            window.addEventListener('resize', onWindowResize);
-
-            // 啟動渲染循環
-            renderer.setAnimationLoop(render);
+        #ar-container {
+            width: 100%;
+            height: 100vh;
+            position: absolute;
+            top: 0;
+            left: 0;
         }
-
-        function loadGlasses(modelPath) {
-            // 載入 3D 眼鏡模型
-            if (glasses) {
-                scene.remove(glasses);
-            }
-            const loader = new GLTFLoader();
-            loader.load(modelPath, function (gltf) {
-                glasses = gltf.scene;
-                glasses.scale.set(0.5, 0.5, 0.5); // 設定縮放比例
-                glasses.position.set(0, 1.6, -0.5); // 調整眼鏡位置
-                scene.add(glasses);
-            });
-        }
-
-        function changeGlasses() {
-            // 切換至下一副眼鏡
-            currentGlassesIndex = (currentGlassesIndex + 1) % glassesModels.length;
-            loadGlasses(glassesModels[currentGlassesIndex]);
-        }
-
-        function onWindowResize() {
-            // 確保畫面隨視窗大小變化而更新
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        }
-
-        function render() {
-            // 持續渲染場景
-            renderer.render(scene, camera);
-        }
-        init();
-    </script>
+    </style>
 </head>
 <body>
+    <div id="ar-container"></div>
+    <script src="https://unpkg.com/three@0.132.2/build/three.min.js"></script>
+    <script src="https://unpkg.com/aframe/dist/aframe.min.js"></script>
+    <script>
+        // 確認 WebXR 是否可用
+        if (navigator.xr) {
+            console.log("WebXR is supported!");
+            startAR();
+        } else {
+            alert("WebXR not supported by this browser.");
+        }
+
+        function startAR() {
+            // 建立 WebXR 環境
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.getElementById('ar-container').appendChild(renderer.domElement);
+
+            // 創建燈光
+            const light = new THREE.AmbientLight(0x404040); // 環境光
+            scene.add(light);
+
+            // 創建眼鏡模型 (簡單示範)
+            const geometry = new THREE.BoxGeometry(0.5, 0.2, 0.05); // 眼鏡框的基本形狀
+            const material = new THREE.MeshBasicMaterial({ color: 0x0000ff });
+            const glasses = new THREE.Mesh(geometry, material);
+            glasses.position.set(0, 0, -2);  // 設定眼鏡的位置
+            scene.add(glasses);
+
+            // WebXR 顯示功能
+            navigator.xr.requestSession('immersive-ar').then((session) => {
+                const referenceSpace = session.requestReferenceSpace('local');
+                const viewerSpace = session.requestViewerSpace();
+                
+                // 設定WebXR Session
+                session.addEventListener('select', onSelect);
+
+                function onSelect(event) {
+                    // 用戶觸發的事件，例如換眼鏡
+                    glasses.material.color.set(0xff0000); // 用戶選擇換顏色
+                }
+
+                // 每幀更新渲染
+                function animate() {
+                    renderer.render(scene, camera);
+                    session.requestAnimationFrame(animate);
+                }
+
+                session.requestAnimationFrame(animate);
+            });
+        }
+    </script>
 </body>
 </html>
