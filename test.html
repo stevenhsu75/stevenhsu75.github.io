@@ -3,37 +3,53 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Zappar AR 眼镜展示</title>
-  <script src="https://libs.zappar.com/zappar-js/2.2.7/zappar.js"></script>
+  <title>WebAR 眼镜展示</title>
   <style>
-    body { margin: 0; padding: 0; overflow: hidden; }
-    #ar-container { position: absolute; width: 100%; height: 100%; }
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: #000;
+    }
+    #ar-container {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+    }
   </style>
 </head>
 <body>
+  <!-- WebAR 容器 -->
   <div id="ar-container"></div>
 
+  <!-- 引入 Zappar Web SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@zappar/zappar"></script>
+  
   <script>
-    // 初始化 Zappar AR
-    const container = document.getElementById('ar-container');
-    const zappar = new Zappar.WebAR();
+    // 当文档加载完成时，初始化 WebAR
+    window.onload = function () {
+      const container = document.getElementById('ar-container');
+      
+      // 初始化 Zappar WebAR
+      const zappar = new Zappar.WebAR();
 
-    // 创建 AR 跟踪器，使用自定义标记
-    const marker = new Zappar.MarkerTracker();
-    
-    // 加载 3D 眼镜模型（确保路径正确）
-    const glassesModel = new Zappar.Model3D('https://stevenhsu75.github.io/glasses.glb');
-    glassesModel.setScale(0.2, 0.2, 0.2);
-    glassesModel.setPosition(0, 0, 0);
-    
-    // 将 3D 模型与标记绑定
-    marker.add(glassesModel);
+      // 创建标记跟踪器，加载自定义的 AR 标记（使用 Hiro 标记）
+      const markerTracker = new Zappar.MarkerTracker();
+      
+      // 加载 3D 模型（例如一个 GLB 格式的眼镜模型）
+      const glassesModel = new Zappar.Model3D('https://stevenhsu75.github.io/glasses.glb');
+      glassesModel.setScale(0.2, 0.2, 0.2); // 设置缩放比例
+      glassesModel.setPosition(0, 0, 0); // 设置位置
+      
+      // 将模型添加到标记跟踪器
+      markerTracker.add(glassesModel);
+      
+      // 开始 WebAR
+      zappar.start(container, markerTracker);
 
-    // 初始化 AR 跟踪
-    zappar.start(container, marker);
-
-    // 处理设备摄像头
-    zappar.setCamera(device.camera);
+      // 启用摄像头
+      zappar.setCamera(device.camera);
+    };
   </script>
 </body>
 </html>
