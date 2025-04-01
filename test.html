@@ -11,8 +11,9 @@
 </head>
 <body>
     <script type="module">
-        import * as THREE from 'https://stevenhsu75.github.io/three.module.js';
-        import { GLTFLoader } from 'https://stevenhsu75.github.io/GLTFLoader.js';
+        // 引用本地文件 (相对路径)
+        import * as THREE from './three.module.js';  // 确保路径正确
+        import { GLTFLoader } from './GLTFLoader.js';  // 确保路径正确
 
         let scene, camera, renderer, controller;
         let loader, model;
@@ -27,14 +28,14 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
             document.body.appendChild(renderer.domElement);
 
-            // 加載 GLB 模型
+            // 加载 GLB 模型
             loader = new GLTFLoader();
             loader.load('glasses.glb', (gltf) => {
                 model = gltf.scene;
                 scene.add(model);
             });
 
-            // 設定 WebXR 支援
+            // 设置 WebXR 支援
             if (navigator.xr) {
                 const xrButton = document.createElement('button');
                 xrButton.innerText = 'Enter VR';
@@ -43,7 +44,7 @@
                 xrButton.addEventListener('click', startXR);
 
                 async function startXR() {
-                    if (xrSession) return;  // 防止重複啟動
+                    if (xrSession) return;  // 防止重复启动
 
                     try {
                         const session = await navigator.xr.requestSession('immersive-vr');
@@ -70,7 +71,7 @@
                     const pose = frame.getViewerPose(xrReferenceSpace);
 
                     if (pose) {
-                        // 在這裡處理你的模型位置和更新邏輯
+                        // 在这里处理模型的位置和更新逻辑
                     }
 
                     renderer.render(scene, camera);
