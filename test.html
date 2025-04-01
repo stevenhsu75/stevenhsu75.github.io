@@ -17,11 +17,13 @@
             left: 0;
         }
     </style>
+    <!-- A-Frame 在頭部加載 -->
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
 </head>
 <body>
+    <!-- AR場景 -->
     <div id="ar-container"></div>
-    <script src="https://unpkg.com/three@0.132.2/build/three.min.js"></script>
-    <script src="https://unpkg.com/aframe/dist/aframe.min.js"></script>
+    
     <script>
         // 確認 WebXR 是否可用
         if (navigator.xr) {
@@ -32,44 +34,28 @@
         }
 
         function startAR() {
-            // 建立 WebXR 環境
-            const scene = new THREE.Scene();
-            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-            const renderer = new THREE.WebGLRenderer({ antialias: true });
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            document.getElementById('ar-container').appendChild(renderer.domElement);
+            // A-Frame場景設置
+            const scene = document.createElement('a-scene');
+            scene.setAttribute('embedded', '');
+            scene.setAttribute('arjs', 'sourceType: webcam;');
+            document.getElementById('ar-container').appendChild(scene);
 
-            // 創建燈光
-            const light = new THREE.AmbientLight(0x404040); // 環境光
-            scene.add(light);
+            // 在 A-Frame 中創建眼鏡模型（這裡使用 A-Frame 的基本圖形）
+            const glassesEntity = document.createElement('a-box');
+            glassesEntity.setAttribute('color', '#0000ff');
+            glassesEntity.setAttribute('position', '0 1 -3'); // 設置眼鏡的位置
+            glassesEntity.setAttribute('scale', '0.5 0.2 0.05'); // 設置眼鏡的大小
+            scene.appendChild(glassesEntity);
 
-            // 創建眼鏡模型 (簡單示範)
-            const geometry = new THREE.BoxGeometry(0.5, 0.2, 0.05); // 眼鏡框的基本形狀
-            const material = new THREE.MeshBasicMaterial({ color: 0x0000ff });
-            const glasses = new THREE.Mesh(geometry, material);
-            glasses.position.set(0, 0, -2);  // 設定眼鏡的位置
-            scene.add(glasses);
-
-            // WebXR 顯示功能
+            // 啟動 WebXR 會話
             navigator.xr.requestSession('immersive-ar').then((session) => {
                 const referenceSpace = session.requestReferenceSpace('local');
-                const viewerSpace = session.requestViewerSpace();
-                
-                // 設定WebXR Session
                 session.addEventListener('select', onSelect);
 
                 function onSelect(event) {
                     // 用戶觸發的事件，例如換眼鏡
-                    glasses.material.color.set(0xff0000); // 用戶選擇換顏色
+                    glassesEntity.setAttribute('color', '#ff0000'); // 改變顏色
                 }
-
-                // 每幀更新渲染
-                function animate() {
-                    renderer.render(scene, camera);
-                    session.requestAnimationFrame(animate);
-                }
-
-                session.requestAnimationFrame(animate);
             });
         }
     </script>
