@@ -42,6 +42,9 @@
   <script src="https://cdn.jsdelivr.net/npm/three@0.137.5/examples/js/controls/OrbitControls.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.137.5/examples/js/loaders/GLTFLoader.js"></script>
 
+  <!-- 引入 face-api.js -->
+  <script src="https://cdn.jsdelivr.net/npm/face-api.js"></script>
+
   <script>
     let scene, camera, renderer, video, videoTexture, model1, model2, currentModel;
     const arButton = document.getElementById('ar-button');
@@ -122,8 +125,7 @@
     function loadGlassesModel(modelPath, callback) {
       loader.load(modelPath, (gltf) => {
         const model = gltf.scene;
-        //model.scale.set(0.1, 0.1, 0.1);  // 根据需要调整大小
-        console.log(`加载模型：${modelPath}`);  // 添加调试输出
+        console.log(`加载模型：${modelPath}`);
         callback(model);
       }, undefined, (error) => {
         console.error('加载眼镜模型失败', error);
@@ -159,8 +161,6 @@
     // 渲染每一帧
     function animate() {
       requestAnimationFrame(animate);
-
-      // 更新渲染
       renderer.render(scene, camera);
     }
 
@@ -177,6 +177,41 @@
     switchButton.addEventListener('click', () => {
       switchGlasses();
     });
+
+    // 使用 face-api.js 进行面部检测并调整眼镜位置
+    async function setupFaceAPI() {
+      await faceapi.nets.ssdMobilenetv1.loadFromUri('/models');
+      await faceapi.nets.faceLandmark68Net.loadFromUri('/models');
+      await faceapi.nets.faceRecognitionNet.loadFromUri('/models');
+      
+      const videoElement = document.createElement('video');
+      document.body.append(videoElement);
+      
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      videoElement.srcObject = stream;
+      videoElement.play();
+
+      videoElement.onplay = () => {
+        setInterval(async () => {
+          const detections = await faceapi.detectAllFaces(videoElement).withFaceLandmarks();
+          if (detections.length > 0) {
+            const landmarks = detections[0].landmarks;
+            const leftEye = landmarks.getLeftEye();
+            const rightEye = landmarks.getRightEye();
+
+            // 计算眼睛之间的距离等，调整眼镜模型的位置
+            model1.position.set(
+              (leftEye[3].x + rightEye[3].x) / 2, 
+              (leftEye[3].y + rightEye[3].y) / 2, 
+              -2
+            );
+          }
+        }, 100);
+      };
+    }
+
+    // 初始化面部识别
+    setupFaceAPI();
   </script>
 </body>
 </html>
