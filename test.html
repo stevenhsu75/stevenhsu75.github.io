@@ -16,22 +16,40 @@
             top: 0;
             left: 0;
         }
+        #start-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        #start-btn:hover {
+            background-color: #0056b3;
+        }
     </style>
     <!-- A-Frame 在頭部加載 -->
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
 </head>
 <body>
-    <!-- AR場景 -->
+    <button id="start-btn">啟動 AR</button>
     <div id="ar-container"></div>
-    
+
     <script>
         // 確認 WebXR 是否可用
         if (navigator.xr) {
             console.log("WebXR is supported!");
-            startAR();
         } else {
             alert("WebXR not supported by this browser.");
         }
+
+        // 當用戶點擊按鈕時啟動 AR 會話
+        document.getElementById('start-btn').addEventListener('click', function () {
+            startAR();
+        });
 
         function startAR() {
             // A-Frame場景設置
