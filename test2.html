@@ -10,39 +10,36 @@
   </style>
 </head>
 <body>
-  <!-- 使用非模塊版本的 Three.js -->
-<script type="module">
-  import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js';  // 使用相對路徑
-  import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/loaders/GLTFLoader.js';  // 使用相對路徑
-</script>
-
+  <!-- 使用非模塊版 Three.js -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.150.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.150.0/examples/jsm/loaders/GLTFLoader.js"></script>
+ 
   <script>
-    // 基本設定
+    // 在這裡直接使用 THREE 物件
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer();
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
 
-    // 光源
-    const light = new THREE.AmbientLight(0x404040, 2); // 環境光
+    // 添加光源
+    const light = new THREE.AmbientLight(0x404040, 2);
     scene.add(light);
 
-    // 目標是加載GLB眼鏡模型
+    // 加載 GLB 眼鏡模型
     const loader = new THREE.GLTFLoader();
     let glasses;
 
-    // 加載GLB模型（請替換為您自己眼鏡模型的路徑）
     loader.load('glasses.glb', (gltf) => {
       glasses = gltf.scene;
-      glasses.scale.set(0.1, 0.1, 0.1); // 可以根據需要調整眼鏡的大小
-      glasses.position.set(0, -1, 0); // 位置調整
+      glasses.scale.set(0.1, 0.1, 0.1);
+      glasses.position.set(0, -1, 0);
       scene.add(glasses);
     }, undefined, (error) => {
       console.error(error);
     });
 
-    // 虛擬物體（示例：轉動的立方體，幫助確認相機和光線）
+    // 添加立方體物體來檢查相機和光源
     const geometry = new THREE.BoxGeometry();
     const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
     const cube = new THREE.Mesh(geometry, material);
@@ -51,31 +48,19 @@
     // 調整相機位置
     camera.position.z = 5;
 
-    // 渲染函數
+    // 渲染循環
     function animate() {
       requestAnimationFrame(animate);
-
-      // 使立方體旋轉
       cube.rotation.x += 0.01;
       cube.rotation.y += 0.01;
 
-      // 如果有眼鏡模型，讓它旋轉
       if (glasses) {
         glasses.rotation.y += 0.01;
       }
 
-      // 渲染場景
       renderer.render(scene, camera);
     }
 
-    // 響應式設置：視窗大小變化時更新
-    window.addEventListener('resize', () => {
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-    });
-
-    // 開始動畫
     animate();
   </script>
 </body>
