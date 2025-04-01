@@ -27,30 +27,28 @@
 
   <script>
     window.onload = function () {
-      // 确保 Zappar SDK 已经加载完成
-      console.log("0！");
       if (typeof Zappar !== "undefined") {
         const container = document.getElementById('ar-container');
-console.log("1！");
-        // 使用 Zappar SDK 中的 WebAR 初始化
-        const webAR = new Zappar.WebAR();
-console.log("12！");
-        // 使用 cameraStart 来启用摄像头
-        webAR.cameraStart();
-console.log("123！");
-        // 创建一个标记跟踪器
+
+        // 1. 初始化 AR 会话
+        const arSession = new Zappar.AR();  // 初始化 AR
+
+        // 2. 创建标记跟踪器
         const markerTracker = new Zappar.MarkerTracker();
 
-        // 加载 3D 模型
+        // 3. 加载 3D 模型（例如眼镜模型）
         const glassesModel = new Zappar.Model3D('https://stevenhsu75.github.io/glasses.glb');
-        glassesModel.setScale(0.2, 0.2, 0.2); // 设置缩放比例
-        glassesModel.setPosition(0, 0, 0); // 设置位置
+        glassesModel.setScale(0.2, 0.2, 0.2);  // 设置模型的大小
+        glassesModel.setPosition(0, 0, 0);    // 设置位置
 
-        // 将模型添加到标记跟踪器
+        // 4. 将模型添加到标记跟踪器
         markerTracker.add(glassesModel);
 
-        // 启动 WebAR 和标记跟踪
-        webAR.start(container, markerTracker);
+        // 5. 启动 AR 环境
+        arSession.start(container);  // 启动 AR 环境，传入容器元素
+
+        // 6. 启动标记跟踪
+        arSession.track(markerTracker);  // 启动标记跟踪器
       } else {
         console.error("Zappar SDK 加载失败，无法初始化 AR。");
       }
