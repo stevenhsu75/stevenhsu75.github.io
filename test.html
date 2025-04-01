@@ -8,6 +8,7 @@
         body {
             margin: 0;
             overflow: hidden;
+            background: #000;
         }
         #start-btn {
             position: absolute;
@@ -19,6 +20,7 @@
             border: none;
             font-size: 16px;
             cursor: pointer;
+            z-index: 1000; /* 确保按钮在最上层 */
         }
         #start-btn:hover {
             background-color: #0056b3;
@@ -32,35 +34,32 @@
     <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.js"></script>
 </head>
 <body>
+    <!-- 通过按钮来启动 AR -->
     <button id="start-btn">啟動 AR</button>
 
     <a-scene embedded arjs="sourceType: webcam; detectionMode: mono;">
+
         <a-assets>
+            <!-- 替换为你眼镜模型的路径 -->
             <a-asset-item id="glasses-model" src="glasses.glb"></a-asset-item>
         </a-assets>
 
+        <!-- 面部追踪，AR 物体跟随面部 -->
         <a-entity id="face" face="tracking: true;" position="0 1.6 -1">
-            <a-gltf-model src="#glasses-model" scale="0.3 0.3 0.3" position="0 0.1 0"></a-gltf-model>
+            <!-- GLB 模型的眼镜 -->
+            <a-gltf-model src="#glasses-model" scale="0.3 0.3 0.3" position="0 0.05 0"></a-gltf-model>
         </a-entity>
 
+        <!-- 相机 -->
         <a-camera></a-camera>
     </a-scene>
 
     <script>
-        // 调试信息：检查文档是否完全加载
         document.addEventListener('DOMContentLoaded', function () {
-            console.log('页面已加载完毕');
-            
-            const startBtn = document.getElementById('start-btn');
-            if (startBtn) {
-                console.log('按钮找到，绑定点击事件');
-                startBtn.addEventListener('click', function () {
-                    console.log('AR启动按钮被点击');
-                    startAR();
-                });
-            } else {
-                console.log('按钮没有找到');
-            }
+            document.getElementById('start-btn').addEventListener('click', function () {
+                console.log('AR启动按钮被点击');
+                startAR();
+            });
         });
 
         function startAR() {
@@ -68,8 +67,6 @@
             if (scene) {
                 console.log('AR 已启动');
                 scene.setAttribute('arjs', 'sourceType: webcam; detectionMode: mono;');
-            } else {
-                console.log('没有找到 a-scene');
             }
         }
     </script>
