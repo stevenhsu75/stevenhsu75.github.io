@@ -28,40 +28,43 @@
             height: 100vh;
         }
     </style>
-    <!-- 引入 A-Frame 和 AR.js -->
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.js"></script>
 </head>
 <body>
-    <button id="start-btn">啟動</button>
+    <button id="start-btn">啟動 AR</button>
 
     <a-scene embedded arjs="sourceType: webcam; detectionMode: mono;">
 
-        <!-- 載入 GLB 模型 -->
         <a-assets>
-            <!-- 載入您的 GLB 眼鏡模型 -->
             <a-asset-item id="glasses-model" src="glasses.glb"></a-asset-item>
         </a-assets>
 
-        <!-- 定義 AR 面部追蹤標籤 -->
-        <a-entity id="face" 
-                  face="tracking: true;" 
-                  position="0 1.6 -1">
-            <!-- 使用 GLB 模型來取代眼鏡框 -->
-            <a-gltf-model src="#glasses-model" scale="0.3 0.3 0.3" position="0 0.1 0"></a-gltf-model> <!-- 這是眼鏡的 GLB 模型 -->
+        <a-entity id="face" face="tracking: true;" position="0 1.6 -1">
+            <a-gltf-model src="#glasses-model" scale="0.3 0.3 0.3" position="0 0.1 0"></a-gltf-model>
         </a-entity>
 
         <a-camera></a-camera>
     </a-scene>
 
     <script>
-        // 確保在用戶按下按鈕後才啟動 AR
-        document.getElementById('start-btn').addEventListener('click', function () {
-            // 這裡是可以根據需求調整的，將 AR 啟動。
-            console.log("按下按鈕！");
-            const scene = document.querySelector('a-scene');
-            scene.setAttribute('arjs', 'sourceType: webcam;');
+        // 确保页面加载完成后绑定点击事件
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('start-btn').addEventListener('click', function () {
+                console.log('AR启动按钮被点击');
+                startAR();
+            });
         });
+
+        function startAR() {
+            const scene = document.querySelector('a-scene');
+            if (scene) {
+                scene.setAttribute('arjs', 'sourceType: webcam; detectionMode: mono;');
+                console.log('AR 已启动');
+            } else {
+                console.log('无法找到 a-scene');
+            }
+        }
     </script>
 </body>
 </html>
