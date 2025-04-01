@@ -1,49 +1,79 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Face Landmark 68 Detection</title>
-    <script defer src="https://github.com/justadudewhohacks/face-api.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3D Eyeglasses with Three.js</title>
+  <style>
+    body { margin: 0; }
+    canvas { display: block; }
+  </style>
 </head>
 <body>
-    <h1>Face Landmark 68 Detection with face-api.js</h1>
-    <input type="file" id="imageUpload" accept="image/*">
-    <canvas id="canvas"></canvas>
-    <script>
-        // 加载预训练的 face-api.js 模型
-        async function loadModels() {
-            console.log("Models loaded start");
-            await faceapi.nets.ssdMobilenetv1.loadFromUri('https://github.com/justadudewhohacks/face-api.js/tree/master/weights');
-            await faceapi.nets.faceLandmark68Net.loadFromUri('https://github.com/justadudewhohacks/face-api.js/tree/master/weights');
-            await faceapi.nets.faceRecognitionNet.loadFromUri('https://github.com/justadudewhohacks/face-api.js/tree/master/weights');
-            console.log("Models loaded end");
-        }
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="GLTFLoader.js"></script>
 
-        // 处理上传的图片
-        document.getElementById('imageUpload').addEventListener('change', async (event) => {
-            const image = await faceapi.bufferToImage(event.target.files[0]);
-            document.body.append(image);
-            
-            // 获取 canvas 元素
-            const canvas = document.getElementById('canvas');
-            const displaySize = { width: image.width, height: image.height };
-            faceapi.matchDimensions(canvas, displaySize);
-            
-            // 检测人脸及其关键点
-            const detections = await faceapi.detectSingleFace(image).withFaceLandmarks();
-            
-            // 在 canvas 上绘制面部关键点
-            const resizedDetections = faceapi.resizeResults(detections, displaySize);
-            faceapi.draw.drawDetections(canvas, resizedDetections);
-            faceapi.draw.drawFaceLandmarks(canvas, resizedDetections);
-        });
+  <script>
+    // 基本設定
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
 
-        // 初始化模型加载
-        window.onload = async () => {
-            await loadModels(); // 等待模型加载
-        };
+    // 光源
+    const light = new THREE.AmbientLight(0x404040, 2); // 環境光
+    scene.add(light);
 
-    </script>
+    // 目標是加載GLB眼鏡模型
+    const loader = new THREE.GLTFLoader();
+    let glasses;
+
+    // 加載GLB模型（請替換為您自己眼鏡模型的路徑）
+    loader.load('glasses.glb', (gltf) => {
+      glasses = gltf.scene;
+      glasses.scale.set(0.1, 0.1, 0.1); // 可以根據需要調整眼鏡的大小
+      glasses.position.set(0, -1, 0); // 位置調整
+      scene.add(glasses);
+    }, undefined, (error) => {
+      console.error(error);
+    });
+
+    // 虛擬物體（示例：轉動的立方體，幫助確認相機和光線）
+    const geometry = new THREE.BoxGeometry();
+    const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+    const cube = new THREE.Mesh(geometry, material);
+    scene.add(cube);
+
+    // 調整相機位置
+    camera.position.z = 5;
+
+    // 渲染函數
+    function animate() {
+      requestAnimationFrame(animate);
+
+      // 使立方體旋轉
+      cube.rotation.x += 0.01;
+      cube.rotation.y += 0.01;
+
+      // 如果有眼鏡模型，讓它旋轉
+      if (glasses) {
+        glasses.rotation.y += 0.01;
+      }
+
+      // 渲染場景
+      renderer.render(scene, camera);
+    }
+
+    // 響應式設置：視窗大小變化時更新
+    window.addEventListener('resize', () => {
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+    });
+
+    // 開始動畫
+    animate();
+  </script>
 </body>
 </html>
