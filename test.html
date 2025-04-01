@@ -35,7 +35,6 @@
     <button id="start-btn">啟動 AR</button>
 
     <a-scene embedded arjs="sourceType: webcam; detectionMode: mono;">
-
         <a-assets>
             <a-asset-item id="glasses-model" src="glasses.glb"></a-asset-item>
         </a-assets>
@@ -48,21 +47,29 @@
     </a-scene>
 
     <script>
-        // 确保页面加载完成后绑定点击事件
+        // 调试信息：检查文档是否完全加载
         document.addEventListener('DOMContentLoaded', function () {
-            document.getElementById('start-btn').addEventListener('click', function () {
-                console.log('AR启动按钮被点击');
-                startAR();
-            });
+            console.log('页面已加载完毕');
+            
+            const startBtn = document.getElementById('start-btn');
+            if (startBtn) {
+                console.log('按钮找到，绑定点击事件');
+                startBtn.addEventListener('click', function () {
+                    console.log('AR启动按钮被点击');
+                    startAR();
+                });
+            } else {
+                console.log('按钮没有找到');
+            }
         });
 
         function startAR() {
             const scene = document.querySelector('a-scene');
             if (scene) {
-                scene.setAttribute('arjs', 'sourceType: webcam; detectionMode: mono;');
                 console.log('AR 已启动');
+                scene.setAttribute('arjs', 'sourceType: webcam; detectionMode: mono;');
             } else {
-                console.log('无法找到 a-scene');
+                console.log('没有找到 a-scene');
             }
         }
     </script>
