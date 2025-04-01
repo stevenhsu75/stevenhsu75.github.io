@@ -51,7 +51,6 @@
 
     // 初始化Three.js场景
     function initThreeJS() {
-      console.log("initThreeJS！");
       scene = new THREE.Scene();
       camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
       renderer = new THREE.WebGLRenderer({ alpha: true });
@@ -62,7 +61,7 @@
       initVideoBackground();
 
       // 加载第一个眼镜模型
-      loadGlassesModel('glasses.glb', (model) => {
+      loadGlassesModel('glasses1.glb', (model) => {
         model1 = model;
         model1.position.z = -5;
         scene.add(model1);
@@ -70,7 +69,7 @@
       });
 
       // 加载第二个眼镜模型
-      loadGlassesModel('glasses.glb', (model) => {
+      loadGlassesModel('glasses2.glb', (model) => {
         model2 = model;
         model2.position.z = -5;
         model2.visible = false; // 默认隐藏
@@ -80,35 +79,44 @@
       const controls = new THREE.OrbitControls(camera, renderer.domElement);
     }
 
-    // 初始化视频背景
+    // 初始化视频背景（使用摄像头视频流）
     function initVideoBackground() {
       video = document.createElement('video');
-      video.src = 'mov_bbb.mp4'; // 可替换成你自己的视频
-      video.crossOrigin = "anonymous";  // 添加 CORS 设置
-      video.load();
-      video.play();
-      video.loop = true;
+      video.width = window.innerWidth;
+      video.height = window.innerHeight;
+      video.autoplay = true;
       video.muted = true;
+      video.playsInline = true;
 
-      videoTexture = new THREE.VideoTexture(video);
-      videoTexture.minFilter = THREE.LinearFilter;
-      videoTexture.magFilter = THREE.LinearFilter;
-      videoTexture.format = THREE.RGBFormat;
+      // 获取摄像头视频流
+      navigator.mediaDevices.getUserMedia({ video: true })
+        .then((stream) => {
+          video.srcObject = stream;
+          video.play();
 
-      const videoGeometry = new THREE.PlaneGeometry(16, 9);
-      const videoMaterial = new THREE.MeshBasicMaterial({ map: videoTexture });
-      const videoPlane = new THREE.Mesh(videoGeometry, videoMaterial);
-      scene.add(videoPlane);
+          // 将摄像头流作为视频纹理
+          videoTexture = new THREE.VideoTexture(video);
+          videoTexture.minFilter = THREE.LinearFilter;
+          videoTexture.magFilter = THREE.LinearFilter;
+          videoTexture.format = THREE.RGBFormat;
 
-      // 设置视频的位置
-      videoPlane.position.z = -5;
-      console.log("initVideoBackground！");
+          // 创建背景视频平面
+          const videoGeometry = new THREE.PlaneGeometry(16, 9);
+          const videoMaterial = new THREE.MeshBasicMaterial({ map: videoTexture });
+          const videoPlane = new THREE.Mesh(videoGeometry, videoMaterial);
+          scene.add(videoPlane);
+
+          // 设置视频的位置
+          videoPlane.position.z = -5;
+        })
+        .catch((err) => {
+          console.error('无法访问摄像头:', err);
+        });
     }
 
     // 加载眼镜模型
     function loadGlassesModel(modelPath, callback) {
       loader.load(modelPath, (gltf) => {
-        console.log("loadGlassesModel！");
         const model = gltf.scene;
         model.scale.set(0.1, 0.1, 0.1);  // 根据需要调整大小
         callback(model);
@@ -120,20 +128,9 @@
     // 启动摄像头
     async function startCamera() {
       try {
-        console.log("startCamera！");
         const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        const videoElement = document.createElement('video');
-        videoElement.srcObject = stream;
-        console.log("startCamera1！");
-        videoElement.play();
-        console.log("startCamera2！");
-        videoElement.onloadedmetadata = () => {
-          videoElement.width = window.innerWidth;
-          videoElement.height = window.innerHeight;
-        };
-        console.log("startCamera3！");
-        document.body.appendChild(videoElement);
-        videoStream = stream;
+        video.srcObject = stream;
+        video.play();
       } catch (err) {
         console.error('无法访问摄像头：', err);
       }
@@ -141,7 +138,6 @@
 
     // 切换眼镜
     function switchGlasses() {
-      console.log("switchGlasses！");
       if (currentModel === model1) {
         model1.visible = false;
         model2.visible = true;
@@ -163,19 +159,15 @@
 
     // 启动AR按钮点击事件
     arButton.addEventListener('click', () => {
-      console.log("arButton！");
       startCamera(); // 启动摄像头
-      console.log("arButton1！");
       arButton.style.display = 'none'; // 隐藏按钮
       switchButton.style.display = 'block'; // 显示切换眼镜按钮
       initThreeJS(); // 初始化Three.js
       animate(); // 开始渲染动画
-      console.log("arButton2！");
     });
 
     // 切换眼镜按钮点击事件
     switchButton.addEventListener('click', () => {
-      console.log("switchButton！");
       switchGlasses();
     });
   </script>
