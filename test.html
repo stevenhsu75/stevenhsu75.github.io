@@ -31,8 +31,11 @@
       if (typeof Zappar !== "undefined") {
         const container = document.getElementById('ar-container');
         
-        // 初始化 WebAR
-        const zappar = new Zappar.WebAR();
+        // 初始化 WebAR（通过配置来启动，而不是 new）
+        const zapparWebAR = new Zappar.WebAR({
+          container: container,  // 设置 AR 容器
+          camera: true,           // 启用摄像头
+        });
 
         // 创建标记跟踪器，加载自定义的 AR 标记（使用 Hiro 标记）
         const markerTracker = new Zappar.MarkerTracker();
@@ -45,11 +48,8 @@
         // 将模型添加到标记跟踪器
         markerTracker.add(glassesModel);
         
-        // 开始 WebAR
-        zappar.start(container, markerTracker);
-
-        // 启用摄像头
-        zappar.setCamera(device.camera);
+        // 启动 AR 环境
+        zapparWebAR.start(markerTracker);
       } else {
         console.error("Zappar SDK 加载失败，无法初始化 AR。");
       }
