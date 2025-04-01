@@ -144,10 +144,12 @@
     // 切换眼镜
     function switchGlasses() {
       if (currentModel === model1) {
+        console.log("model2！");
         model1.visible = false;
         model2.visible = true;
         currentModel = model2;
       } else {
+        console.log("model1！");
         model2.visible = false;
         model1.visible = true;
         currentModel = model1;
