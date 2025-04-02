@@ -132,19 +132,19 @@
                 }
                      // 如果找到右眼，繪製矩形框
                     if (rightEye) {
-                        context.beginPath();
-                        context.rect(face.x + rightEye.x, face.y + rightEye.y, rightEye.width, rightEye.height);
-                        context.lineWidth = 2;
-                        context.strokeStyle = 'green';
-                        context.stroke();
+                        ctx.beginPath();
+                        ctx.rect(face.x + rightEye.x, face.y + rightEye.y, rightEye.width, rightEye.height);
+                        ctx.lineWidth = 2;
+                        ctx.strokeStyle = 'green';
+                        ctx.stroke();
                     }
                      // 如果找到右眼，繪製矩形框
                     if (leftEye) {
-                        context.beginPath();
-                        context.rect(face.x + leftEye.x, face.y + leftEye.y, leftEye.width, leftEye.height);
-                        context.lineWidth = 2;
-                        context.strokeStyle = 'red';
-                        context.stroke();
+                        ctx.beginPath();
+                        ctx.rect(face.x + leftEye.x, face.y + leftEye.y, leftEye.width, leftEye.height);
+                        ctx.lineWidth = 2;
+                        ctx.strokeStyle = 'red';
+                        ctx.stroke();
                     }
 
                 console.log("👓 偵測到臉部！===", face);
