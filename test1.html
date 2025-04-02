@@ -119,15 +119,17 @@
                     }
                 }
                 let leftEye = null;
-for (let j = 0; j < eyes.size(); j++) {
-    let eye = eyes.get(j);
+                if (eyes.size() > 0) {
+                    for (let j = 0; j < eyes.size(); j++) {
+                        let eye = eyes.get(j);
     
-    // 判断左眼是否位于面部矩形的左半部分
-    if (eye.x < face.x + face.width / 2) {
-        leftEye = eye;
-        break;  // 找到左眼后跳出循环
-    }
-}
+                        // 判断左眼是否位于面部矩形的左半部分
+                        if (eye.x < face.x + face.width / 2) {
+                            leftEye = eye;
+                            break;  // 找到左眼后跳出循环
+                        }
+                    }
+                }
                 console.log("👓 偵測到臉部！===", face);
                 console.log("👓 偵測到右眼！===", rightEye);
                 console.log("👓 偵測到左眼！===", leftEye);
