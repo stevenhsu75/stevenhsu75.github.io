@@ -10,69 +10,70 @@
   </style>
 </head>
 <body>
-  <!-- 使用 ES 模塊方式載入 Three.js 和 GLTFLoader -->
+  <!-- Use a CDN to load Three.js and GLTFLoader -->
   <script type="module">
-    import * as THREE from 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.module.js';
-    import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/jsm/loaders/GLTFLoader.js';
+    // Use CDN URLs to load Three.js and GLTFLoader.js
+    import * as THREE from 'https://cdn.skypack.dev/three';
+    import { GLTFLoader } from 'https://cdn.skypack.dev/three/examples/jsm/loaders/GLTFLoader.js';
 
-    // 創建場景
+    // Create the scene, camera, and renderer
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer();
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
 
-    // 添加光源
-    const light = new THREE.AmbientLight(0x404040, 2); // 環境光
+    // Add ambient light
+    const light = new THREE.AmbientLight(0x404040, 2);
     scene.add(light);
 
-    // 使用 GLTFLoader 加載模型
-    const loader = new GLTFLoader(); // 這是正確的構造函數
+    // Load 3D glasses model
+    const loader = new GLTFLoader();
     let glasses;
 
     loader.load('glasses.glb', (gltf) => {
       glasses = gltf.scene;
-      glasses.scale.set(0.1, 0.1, 0.1); // 根據需要調整眼鏡的大小
-      glasses.position.set(0, -1, 0); // 位置調整
+      glasses.scale.set(0.1, 0.1, 0.1);  // Adjust the size of the glasses
+      glasses.position.set(0, -1, 0);  // Adjust the position of the glasses
       scene.add(glasses);
     }, undefined, (error) => {
       console.error(error);
     });
 
-    // 添加旋轉立方體來檢查相機和光源
+    // Add a rotating cube for reference
     const geometry = new THREE.BoxGeometry();
     const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
     const cube = new THREE.Mesh(geometry, material);
     scene.add(cube);
 
-    // 調整相機位置
+    // Set camera position
     camera.position.z = 5;
 
-    // 渲染循環
+    // Animation loop
     function animate() {
       requestAnimationFrame(animate);
 
-      // 使立方體旋轉
+      // Rotate the cube
       cube.rotation.x += 0.01;
       cube.rotation.y += 0.01;
 
-      // 使眼鏡旋轉（如果已加載）
+      // Rotate glasses (if loaded)
       if (glasses) {
         glasses.rotation.y += 0.01;
       }
 
-      // 渲染場景
+      // Render the scene
       renderer.render(scene, camera);
     }
 
-    // 響應式設置：視窗大小變化時更新
+    // Handle window resize
     window.addEventListener('resize', () => {
       renderer.setSize(window.innerWidth, window.innerHeight);
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
     });
 
-    // 開始動畫循環
+    // Start animation
     animate();
   </script>
 </body>
