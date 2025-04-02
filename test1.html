@@ -97,7 +97,7 @@
                 let eyeX = face.x + face.width * 0.15;
                 let eyeY = face.y + face.height * 0.3;
                 let eyeWidth = face.width * 0.7;
-                let eyeHeight = eyeWidth / 3;
+                let eyeHeight = eyeWidth * 0.7; //let eyeHeight = eyeWidth / 3;
 
                 console.log("👓 偵測到臉部，繪製眼鏡！", eyeX, eyeY, eyeWidth, eyeHeight);
                 ctx.drawImage(glasses, eyeX, eyeY, eyeWidth, eyeHeight);
