@@ -88,7 +88,7 @@
           videoTexture = new THREE.VideoTexture(video);
           videoTexture.minFilter = THREE.LinearFilter;
           videoTexture.magFilter = THREE.LinearFilter;
-          videoTexture.format = THREE.RGBFormat;
+          videoTexture.format = THREE.RGBAFormat;
 
           const videoGeometry = new THREE.PlaneGeometry(16, 9);
           const videoMaterial = new THREE.MeshBasicMaterial({ map: videoTexture });
