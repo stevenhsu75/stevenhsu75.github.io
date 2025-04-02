@@ -43,6 +43,8 @@
         async function loadCascade() {
             let cascadeFile = 'haarcascade_frontalface_default.xml';
             let cascadeUrl = 'https://raw.githubusercontent.com/opencv/opencv/master/data/haarcascades/haarcascade_frontalface_default.xml';
+            let cascadeFile1 = 'haarcascade_eye.xml';
+            let cascadeUrl1 = 'https://raw.githubusercontent.com/opencv/opencv/master/data/haarcascades/haarcascade_eye.xml';
    
             try {
                 let response = await fetch(cascadeUrl);
@@ -50,11 +52,11 @@
                 cv.FS_createDataFile("/", cascadeFile, new Uint8Array(buffer), true, false, false);
                 faceCascade = new cv.CascadeClassifier();
                 faceCascade.load(cascadeFile);
-                let response = await fetch('https://raw.githubusercontent.com/opencv/opencv/master/data/haarcascades/haarcascade_eye.xml');
-                let buffer = await response.arrayBuffer();
-                cv.FS_createDataFile("/", 'haarcascade_eye.xml', new Uint8Array(buffer), true, false, false);
+                let response1 = await fetch(cascadeUrl1);
+                let buffer1 = await response1.arrayBuffer();
+                cv.FS_createDataFile("/", cascadeFile1, new Uint8Array(buffer1), true, false, false);
                 eyeCascade = new cv.CascadeClassifier();
-                eyeCascade.load('haarcascade_eye.xml');
+                eyeCascade.load(cascadeFile1);
                 console.log("📂 臉部分類器載入完成");
             } catch (error) {
                 console.error("❌ 無法載入 XML:", error);
