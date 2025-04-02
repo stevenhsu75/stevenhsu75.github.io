@@ -8,17 +8,6 @@
       margin: 0;
       overflow: hidden;
     }
-    #ar-button {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      padding: 10px;
-      background: rgba(0, 0, 0, 0.6);
-      color: white;
-      font-size: 18px;
-      border-radius: 8px;
-      z-index: 10;
-    }
     #switch-button {
       position: absolute;
       top: 100px;
@@ -33,7 +22,6 @@
   </style>
 </head>
 <body>
-  <button id="ar-button">启动 AR</button>
   <button id="switch-button" style="display: none;">切换眼镜</button>
 
   <!-- 引入 Three.js -->
@@ -46,10 +34,8 @@
 
   <script>
     let scene, camera, renderer, video, videoTexture, model1, model2, currentModel;
-    const arButton = document.getElementById('ar-button');
     const switchButton = document.getElementById('switch-button');
     const loader = new THREE.GLTFLoader();
-    let videoStream = null;
 
     // Initialize the 3D scene with Three.js
     function initThreeJS() {
@@ -72,7 +58,7 @@
       });
 
       // Load the second glasses model
-      loadGlassesModel('glasses.glb', (model) => {
+      loadGlassesModel('glasses1.glb', (model) => {
         model2 = model;
         model2.position.set(0, -0.5, -2); 
         model2.scale.set(0.5, 0.5, 0.5);  
@@ -127,17 +113,6 @@
       });
     }
 
-    // Start the camera
-    async function startCamera() {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        video.srcObject = stream;
-        video.play();
-      } catch (err) {
-        console.error('无法访问摄像头：', err);
-      }
-    }
-
     // Switch glasses models
     function switchGlasses() {
       if (currentModel === model1) {
@@ -157,19 +132,16 @@
       renderer.render(scene, camera);
     }
 
-    // Start AR button click event
-    arButton.addEventListener('click', () => {
-      startCamera(); 
-      arButton.style.display = 'none'; 
-      switchButton.style.display = 'block'; 
-      initThreeJS(); 
-      animate(); 
-    });
-
-    // Switch glasses button click event
-    switchButton.addEventListener('click', () => {
-      switchGlasses();
-    });
+    // Start the camera
+    async function startCamera() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        video.srcObject = stream;
+        video.play();
+      } catch (err) {
+        console.error('无法访问摄像头：', err);
+      }
+    }
 
     // Initialize face-api.js
     window.onload = async function () {
@@ -178,16 +150,18 @@
         await faceapi.nets.faceLandmark68Net.load('/');
         await faceapi.nets.faceRecognitionNet.load('/');
         
-        const videoElement = document.createElement('video');
-        document.body.append(videoElement);
+        // Create a hidden video element for face-api.js
+        const faceVideoElement = document.createElement('video');
+        faceVideoElement.style.display = 'none'; // Hide the video element
+        document.body.append(faceVideoElement);
         
         const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        videoElement.srcObject = stream;
-        videoElement.play();
+        faceVideoElement.srcObject = stream;
+        faceVideoElement.play();
 
-        videoElement.onplay = () => {
+        faceVideoElement.onplay = () => {
           setInterval(async () => {
-            const detections = await faceapi.detectAllFaces(videoElement).withFaceLandmarks();
+            const detections = await faceapi.detectAllFaces(faceVideoElement).withFaceLandmarks();
             if (detections.length > 0) {
               const landmarks = detections[0].landmarks;
               const leftEye = landmarks.getLeftEye();
@@ -209,12 +183,23 @@
             }
           }, 100);
         };
-        
+
         console.log("模型加载完成！");
+        
+        // Initialize the 3D scene and start camera automatically
+        initThreeJS(); 
+        startCamera();
+        animate(); // Start rendering loop
+        switchButton.style.display = 'block'; // Show the "Switch Glasses" button
       } catch (err) {
         console.error("加载模型时出错", err);
       }
     }
+    
+    // Switch glasses button click event
+    switchButton.addEventListener('click', () => {
+      switchGlasses();
+    });
   </script>
 </body>
 </html>
