@@ -52,7 +52,7 @@
       loadGlassesModel('glasses.glb', (model) => {
         model1 = model;
         model1.position.set(0, -0.5, -2); 
-        model1.scale.set(2, 2, 2);  
+        model1.scale.set(1, 1, 1);  
         scene.add(model1);
         currentModel = model1; 
       });
@@ -166,6 +166,9 @@
               const landmarks = detections[0].landmarks;
               const leftEye = landmarks.getLeftEye();
               const rightEye = landmarks.getRightEye();
+              
+      console.log('Left Eye:', leftEye[3]);
+      console.log('Right Eye:', rightEye[3]);
 
               // Calculate the position of the glasses based on eye positions
               const eyeX = (leftEye[3].x + rightEye[3].x) / 2;
