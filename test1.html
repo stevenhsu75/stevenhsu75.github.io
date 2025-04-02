@@ -32,6 +32,7 @@
         glasses.src = 'glasses.png';
 
         let faceCascade;
+        let eyeCascade;
 
         cv['onRuntimeInitialized'] = async () => {
             console.log("✅ OpenCV.js 載入完成！");
@@ -42,13 +43,15 @@
         async function loadCascade() {
             let cascadeFile = 'haarcascade_frontalface_default.xml';
             let cascadeUrl = 'https://raw.githubusercontent.com/opencv/opencv/master/data/haarcascades/haarcascade_frontalface_default.xml';
-
+   
             try {
                 let response = await fetch(cascadeUrl);
                 let buffer = await response.arrayBuffer();
                 cv.FS_createDataFile("/", cascadeFile, new Uint8Array(buffer), true, false, false);
                 faceCascade = new cv.CascadeClassifier();
+                eyeCascade = new cv.CascadeClassifier();
                 faceCascade.load(cascadeFile);
+                eyeCascade.load('https://raw.githubusercontent.com/opencv/opencv/master/data/haarcascades/haarcascade_eye.xml');
                 console.log("📂 臉部分類器載入完成");
             } catch (error) {
                 console.error("❌ 無法載入 XML:", error);
@@ -89,11 +92,28 @@
             cv.cvtColor(frame, gray, cv.COLOR_RGBA2GRAY);
 
             let faces = new cv.RectVector();
+            let eyes = new cv.RectVector();
             let msize = new cv.Size(30, 30); // 設定最小臉部尺寸
             faceCascade.detectMultiScale(gray, faces, 1.1, 3, 0, msize, new cv.Size());
 
             if (faces.size() > 0) {
                 let face = faces.get(0);
+                // 檢測眼睛
+                let faceROI = frame.roi(face);
+                // 檢測眼睛
+                classifierEyes.detectMultiScale(faceROI, eyes, 1.1, 3, 0, new cv.Size(30, 30));
+                    let rightEye = null;
+                    for (let j = 0; j < eyes.size(); j++) {
+                        let eye = eyes.get(j);
+                        // 判斷右眼通常在臉部矩形框的右側
+                        if (eye.x > face.width / 2) {
+                            rightEye = eye;
+                            break;  // 找到右眼後跳出
+                        }
+                    }
+                console.log("👓 偵測到臉部，繪製眼鏡！===", face.x + rightEye.x, face.y + rightEye.y, rightEye.width, rightEye.height);
+
+                
                 let eyeX = face.x + face.width * 0.15;
                 let eyeY = face.y + face.height * 0.3;
                 let eyeWidth = face.width * 0.7;
