@@ -49,9 +49,12 @@
                 let buffer = await response.arrayBuffer();
                 cv.FS_createDataFile("/", cascadeFile, new Uint8Array(buffer), true, false, false);
                 faceCascade = new cv.CascadeClassifier();
-                eyeCascade = new cv.CascadeClassifier();
                 faceCascade.load(cascadeFile);
-                eyeCascade.load('https://raw.githubusercontent.com/opencv/opencv/master/data/haarcascades/haarcascade_eye.xml');
+                let response = await fetch('https://raw.githubusercontent.com/opencv/opencv/master/data/haarcascades/haarcascade_eye.xml');
+                let buffer = await response.arrayBuffer();
+                cv.FS_createDataFile("/", 'haarcascade_eye.xml', new Uint8Array(buffer), true, false, false);
+                eyeCascade = new cv.CascadeClassifier();
+                eyeCascade.load('haarcascade_eye.xml');
                 console.log("📂 臉部分類器載入完成");
             } catch (error) {
                 console.error("❌ 無法載入 XML:", error);
@@ -102,6 +105,7 @@
                 let faceROI = frame.roi(face);
                 // 檢測眼睛
                 eyeCascade.detectMultiScale(faceROI, eyes, 1.1, 3, 0, new cv.Size(30, 30));
+                if (eyes.size() > 0) {
                     let rightEye = null;
                     for (let j = 0; j < eyes.size(); j++) {
                         let eye = eyes.get(j);
@@ -111,6 +115,7 @@
                             break;  // 找到右眼後跳出
                         }
                     }
+                }
                 console.log("👓 偵測到臉部，繪製眼鏡！===", face.x + rightEye.x, face.y + rightEye.y, rightEye.width, rightEye.height);
 
                 
