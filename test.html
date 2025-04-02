@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -52,7 +51,7 @@
     const loader = new THREE.GLTFLoader();
     let videoStream = null;
 
-    // 初始化Three.js场景
+    // Initialize the 3D scene with Three.js
     function initThreeJS() {
       scene = new THREE.Scene();
       camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -60,33 +59,33 @@
       renderer.setSize(window.innerWidth, window.innerHeight);
       document.body.appendChild(renderer.domElement);
 
-      // 初始化视频作为背景
+      // Initialize the video background
       initVideoBackground();
 
-      // 加载第一个眼镜模型
+      // Load the first glasses model
       loadGlassesModel('glasses.glb', (model) => {
         model1 = model;
-        model1.position.set(0, -0.5, -2); // 调整眼镜模型位置
-        model1.scale.set(2, 2, 2);  // 调整眼镜模型大小
+        model1.position.set(0, -0.5, -2); 
+        model1.scale.set(2, 2, 2);  
         scene.add(model1);
-        currentModel = model1; // 默认眼镜
+        currentModel = model1; 
       });
 
-      // 加载第二个眼镜模型
+      // Load the second glasses model
       loadGlassesModel('glasses.glb', (model) => {
         model2 = model;
-        model2.position.set(0, -0.5, -2); // 调整眼镜模型位置
-        model2.scale.set(0.5, 0.5, 0.5);  // 调整眼镜模型大小
-        model2.visible = false; // 默认隐藏
+        model2.position.set(0, -0.5, -2); 
+        model2.scale.set(0.5, 0.5, 0.5);  
+        model2.visible = false; 
         scene.add(model2);
       });
 
-      // 添加OrbitControls来查看模型
+      // Add OrbitControls to view the model
       const controls = new THREE.OrbitControls(camera, renderer.domElement);
-      camera.position.z = 3; // 确保相机远离模型
+      camera.position.z = 3; 
     }
 
-    // 初始化视频背景（使用摄像头视频流）
+    // Initialize video background (camera feed)
     function initVideoBackground() {
       video = document.createElement('video');
       video.width = window.innerWidth;
@@ -95,25 +94,21 @@
       video.muted = true;
       video.playsInline = true;
 
-      // 获取摄像头视频流
       navigator.mediaDevices.getUserMedia({ video: true })
         .then((stream) => {
           video.srcObject = stream;
           video.play();
 
-          // 将摄像头流作为视频纹理
           videoTexture = new THREE.VideoTexture(video);
           videoTexture.minFilter = THREE.LinearFilter;
           videoTexture.magFilter = THREE.LinearFilter;
           videoTexture.format = THREE.RGBFormat;
 
-          // 创建背景视频平面
           const videoGeometry = new THREE.PlaneGeometry(16, 9);
           const videoMaterial = new THREE.MeshBasicMaterial({ map: videoTexture });
           const videoPlane = new THREE.Mesh(videoGeometry, videoMaterial);
           scene.add(videoPlane);
 
-          // 设置视频的位置
           videoPlane.position.z = -5;
         })
         .catch((err) => {
@@ -121,7 +116,7 @@
         });
     }
 
-    // 加载眼镜模型
+    // Load glasses model
     function loadGlassesModel(modelPath, callback) {
       loader.load(modelPath, (gltf) => {
         const model = gltf.scene;
@@ -132,7 +127,7 @@
       });
     }
 
-    // 启动摄像头
+    // Start the camera
     async function startCamera() {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -143,84 +138,79 @@
       }
     }
 
-    // 切换眼镜
+    // Switch glasses models
     function switchGlasses() {
       if (currentModel === model1) {
-        console.log("model2！");
         model1.visible = false;
         model2.visible = true;
         currentModel = model2;
       } else {
-        console.log("model1！");
         model2.visible = false;
         model1.visible = true;
         currentModel = model1;
       }
     }
 
-    // 渲染每一帧
+    // Render every frame
     function animate() {
       requestAnimationFrame(animate);
       renderer.render(scene, camera);
     }
 
-    // 启动AR按钮点击事件
+    // Start AR button click event
     arButton.addEventListener('click', () => {
-      startCamera(); // 启动摄像头
-      arButton.style.display = 'none'; // 隐藏按钮
-      switchButton.style.display = 'block'; // 显示切换眼镜按钮
-      initThreeJS(); // 初始化Three.js
-      animate(); // 开始渲染动画
+      startCamera(); 
+      arButton.style.display = 'none'; 
+      switchButton.style.display = 'block'; 
+      initThreeJS(); 
+      animate(); 
     });
 
-    // 切换眼镜按钮点击事件
+    // Switch glasses button click event
     switchButton.addEventListener('click', () => {
       switchGlasses();
     });
 
-
-    // 初始化面部识别
+    // Initialize face-api.js
     window.onload = async function () {
       try {
-        // 加载模型文件
-        console.log("加载模型1！");
-      await faceapi.nets.ssdMobilenetv1.load('/');
-        console.log("加载模型12！");
-      await faceapi.loadFaceLandmarkModel('/')
-      await faceapi.nets.faceLandmark68Net.load('/');
-        console.log("加载模型13！");
-      await faceapi.nets.faceRecognitionNet.load('/');
-        console.log("加载模型14！");
-      
-      const videoElement = document.createElement('video');
-      document.body.append(videoElement);
-      
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-      videoElement.srcObject = stream;
-      videoElement.play();
+        await faceapi.nets.ssdMobilenetv1.load('/');
+        await faceapi.nets.faceLandmark68Net.load('/');
+        await faceapi.nets.faceRecognitionNet.load('/');
+        
+        const videoElement = document.createElement('video');
+        document.body.append(videoElement);
+        
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        videoElement.srcObject = stream;
+        videoElement.play();
 
-      videoElement.onplay = () => {
-        setInterval(async () => {
-          const detections = await faceapi.detectAllFaces(videoElement).withFaceLandmarks();
-          if (detections.length > 0) {
-            const landmarks = detections[0].landmarks;
-            const leftEye = landmarks.getLeftEye();
-            const rightEye = landmarks.getRightEye();
+        videoElement.onplay = () => {
+          setInterval(async () => {
+            const detections = await faceapi.detectAllFaces(videoElement).withFaceLandmarks();
+            if (detections.length > 0) {
+              const landmarks = detections[0].landmarks;
+              const leftEye = landmarks.getLeftEye();
+              const rightEye = landmarks.getRightEye();
 
-            // 计算眼睛之间的距离等，调整眼镜模型的位置
-            model1.position.set(
-              (leftEye[3].x + rightEye[3].x) / 2, 
-              (leftEye[3].y + rightEye[3].y) / 2, 
-              -2
-            );
-          }
-        }, 100);
-      };
+              // Calculate the position of the glasses based on eye positions
+              const eyeX = (leftEye[3].x + rightEye[3].x) / 2;
+              const eyeY = (leftEye[3].y + rightEye[3].y) / 2;
+
+              // Position the glasses based on the average eye position
+              model1.position.set(eyeX, eyeY, -2); // Adjust the Z position for depth
+
+              // Optional: Scale the glasses based on the distance between eyes
+              const eyeDistance = Math.sqrt(
+                Math.pow(rightEye[3].x - leftEye[3].x, 2) + Math.pow(rightEye[3].y - leftEye[3].y, 2)
+              );
+              const scaleFactor = Math.max(eyeDistance / 50, 1); // Scale based on eye distance
+              model1.scale.set(scaleFactor, scaleFactor, scaleFactor);
+            }
+          }, 100);
+        };
         
         console.log("模型加载完成！");
-        
-        // 继续执行你需要的其他逻辑
-        // 比如打开视频流并做面部检测等
       } catch (err) {
         console.error("加载模型时出错", err);
       }
