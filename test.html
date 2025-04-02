@@ -1,229 +1,106 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AR 眼镜换戴</title>
-  <style>
-    body {
-      margin: 0;
-      overflow: hidden;
-    }
-    #ar-button {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      padding: 10px;
-      background: rgba(0, 0, 0, 0.6);
-      color: white;
-      font-size: 18px;
-      border-radius: 8px;
-      z-index: 10;
-    }
-    #switch-button {
-      position: absolute;
-      top: 100px;
-      left: 20px;
-      padding: 10px;
-      background: rgba(0, 0, 0, 0.6);
-      color: white;
-      font-size: 18px;
-      border-radius: 8px;
-      z-index: 10;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face and Eye Detection</title>
+    <script defer src="https://cdn.jsdelivr.net/npm/face-api.js"></script>
+    <style>
+        body {
+            text-align: center;
+        }
+        video {
+            position: absolute;
+            margin: 0;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        canvas {
+            position: absolute;
+            margin: 0;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+    </style>
 </head>
 <body>
-  <button id="ar-button">启动 AR</button>
-  <button id="switch-button" style="display: none;">切换眼镜</button>
+    <h1>Real-time Face and Eye Detection</h1>
+    <video id="video" autoplay muted></video>
+    <script>
+        // 載入 face-api.js 模型
+        async function setup() {
+            // 載入模型
+            await faceapi.nets.ssdMobilenetv1.loadFromUri('/models'); // 指定模型目錄
+            await faceapi.nets.faceLandmark68Net.loadFromUri('/models');
+            await faceapi.nets.faceRecognitionNet.loadFromUri('/models');
 
-  <!-- 引入 Three.js -->
-  <script src="https://cdn.jsdelivr.net/npm/three@0.137.5/build/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.137.5/examples/js/controls/OrbitControls.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.137.5/examples/js/loaders/GLTFLoader.js"></script>
+            // 獲取視頻元素
+            const video = document.getElementById('video');
 
-  <!-- 引入 face-api.js -->
-  <script src="https://cdn.jsdelivr.net/npm/face-api.js"></script>
+            // 使用 webcam 捕獲視頻
+            navigator.mediaDevices.getUserMedia({ video: {} })
+                .then((stream) => {
+                    video.srcObject = stream;
+                })
+                .catch((err) => {
+                    console.error('Error accessing webcam: ', err);
+                });
 
-  <script>
-    let scene, camera, renderer, video, videoTexture, model1, model2, currentModel;
-    const arButton = document.getElementById('ar-button');
-    const switchButton = document.getElementById('switch-button');
-    const loader = new THREE.GLTFLoader();
-    let videoStream = null;
+            // 當視頻開始播放時啟動檢測
+            video.onplay = async () => {
+                const canvas = faceapi.createCanvasFromMedia(video);
+                document.body.append(canvas);
+                const displaySize = { width: video.width, height: video.height };
+                faceapi.matchDimensions(canvas, displaySize);
 
-    // 初始化Three.js场景
-    function initThreeJS() {
-      scene = new THREE.Scene();
-      camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-      renderer = new THREE.WebGLRenderer({ alpha: true });
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      document.body.appendChild(renderer.domElement);
+                // 每幾幀檢測一次人臉
+                setInterval(async () => {
+                    const detections = await faceapi.detectAllFaces(video)
+                        .withFaceLandmarks()  // 獲取面部標誌點
+                        .withFaceDescriptors();
 
-      // 初始化视频作为背景
-      initVideoBackground();
+                    // 將檢測結果畫到畫布上
+                    const resizedDetections = faceapi.resizeResults(detections, displaySize);
+                    canvas.clear();
+                    faceapi.draw.drawDetections(canvas, resizedDetections);
+                    faceapi.draw.drawFaceLandmarks(canvas, resizedDetections);
 
-      // 加载第一个眼镜模型
-      loadGlassesModel('glasses.glb', (model) => {
-        model1 = model;
-        model1.position.set(0, -0.5, -2); // 调整眼镜模型位置
-        model1.scale.set(2, 2, 2);  // 调整眼镜模型大小
-        scene.add(model1);
-        currentModel = model1; // 默认眼镜
-      });
+                    // 獲取眼睛位置並畫出
+                    resizedDetections.forEach(detection => {
+                        const landmarks = detection.landmarks;
+                        const leftEye = landmarks.getLeftEye();
+                        const rightEye = landmarks.getRightEye();
 
-      // 加载第二个眼镜模型
-      loadGlassesModel('glasses.glb', (model) => {
-        model2 = model;
-        model2.position.set(0, -0.5, -2); // 调整眼镜模型位置
-        model2.scale.set(0.5, 0.5, 0.5);  // 调整眼镜模型大小
-        model2.visible = false; // 默认隐藏
-        scene.add(model2);
-      });
+                        // 畫出左眼和右眼的位置
+                        leftEye.forEach(point => {
+                            const x = point.x;
+                            const y = point.y;
+                            const radius = 2;
+                            canvas.getContext('2d').beginPath();
+                            canvas.getContext('2d').arc(x, y, radius, 0, Math.PI * 2);
+                            canvas.getContext('2d').fillStyle = 'green';
+                            canvas.getContext('2d').fill();
+                        });
 
-      // 添加OrbitControls来查看模型
-      const controls = new THREE.OrbitControls(camera, renderer.domElement);
-      camera.position.z = 3; // 确保相机远离模型
-    }
+                        rightEye.forEach(point => {
+                            const x = point.x;
+                            const y = point.y;
+                            const radius = 2;
+                            canvas.getContext('2d').beginPath();
+                            canvas.getContext('2d').arc(x, y, radius, 0, Math.PI * 2);
+                            canvas.getContext('2d').fillStyle = 'green';
+                            canvas.getContext('2d').fill();
+                        });
+                    });
+                }, 100);
+            };
+        }
 
-    // 初始化视频背景（使用摄像头视频流）
-    function initVideoBackground() {
-      video = document.createElement('video');
-      video.width = window.innerWidth;
-      video.height = window.innerHeight;
-      video.autoplay = true;
-      video.muted = true;
-      video.playsInline = true;
-
-      // 获取摄像头视频流
-      navigator.mediaDevices.getUserMedia({ video: true })
-        .then((stream) => {
-          video.srcObject = stream;
-          video.play();
-
-          // 将摄像头流作为视频纹理
-          videoTexture = new THREE.VideoTexture(video);
-          videoTexture.minFilter = THREE.LinearFilter;
-          videoTexture.magFilter = THREE.LinearFilter;
-          videoTexture.format = THREE.RGBFormat;
-
-          // 创建背景视频平面
-          const videoGeometry = new THREE.PlaneGeometry(16, 9);
-          const videoMaterial = new THREE.MeshBasicMaterial({ map: videoTexture });
-          const videoPlane = new THREE.Mesh(videoGeometry, videoMaterial);
-          scene.add(videoPlane);
-
-          // 设置视频的位置
-          videoPlane.position.z = -5;
-        })
-        .catch((err) => {
-          console.error('无法访问摄像头:', err);
-        });
-    }
-
-    // 加载眼镜模型
-    function loadGlassesModel(modelPath, callback) {
-      loader.load(modelPath, (gltf) => {
-        const model = gltf.scene;
-        console.log(`加载模型：${modelPath}`);
-        callback(model);
-      }, undefined, (error) => {
-        console.error('加载眼镜模型失败', error);
-      });
-    }
-
-    // 启动摄像头
-    async function startCamera() {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        video.srcObject = stream;
-        video.play();
-      } catch (err) {
-        console.error('无法访问摄像头：', err);
-      }
-    }
-
-    // 切换眼镜
-    function switchGlasses() {
-      if (currentModel === model1) {
-        console.log("model2！");
-        model1.visible = false;
-        model2.visible = true;
-        currentModel = model2;
-      } else {
-        console.log("model1！");
-        model2.visible = false;
-        model1.visible = true;
-        currentModel = model1;
-      }
-    }
-
-    // 渲染每一帧
-    function animate() {
-      requestAnimationFrame(animate);
-      renderer.render(scene, camera);
-    }
-
-    // 启动AR按钮点击事件
-    arButton.addEventListener('click', () => {
-      startCamera(); // 启动摄像头
-      arButton.style.display = 'none'; // 隐藏按钮
-      switchButton.style.display = 'block'; // 显示切换眼镜按钮
-      initThreeJS(); // 初始化Three.js
-      animate(); // 开始渲染动画
-    });
-
-    // 切换眼镜按钮点击事件
-    switchButton.addEventListener('click', () => {
-      switchGlasses();
-    });
-
-
-    // 初始化面部识别
-    window.onload = async function () {
-      try {
-        // 加载模型文件
-        console.log("加载模型1！");
-      await faceapi.nets.ssdMobilenetv1.loadFromUri('https://github.com/justadudewhohacks/face-api.js/blob/master/weights');
-        console.log("加载模型12！");
-      await faceapi.nets.faceLandmark68Net.loadFromUri('https://github.com/justadudewhohacks/face-api.js/blob/master/weights');
-        console.log("加载模型13！");
-      await faceapi.nets.faceRecognitionNet.loadFromUri('https://github.com/justadudewhohacks/face-api.js/blob/master/weights');
-        console.log("加载模型14！");
-      
-      const videoElement = document.createElement('video');
-      document.body.append(videoElement);
-      
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-      videoElement.srcObject = stream;
-      videoElement.play();
-
-      videoElement.onplay = () => {
-        setInterval(async () => {
-          const detections = await faceapi.detectAllFaces(videoElement).withFaceLandmarks();
-          if (detections.length > 0) {
-            const landmarks = detections[0].landmarks;
-            const leftEye = landmarks.getLeftEye();
-            const rightEye = landmarks.getRightEye();
-
-            // 计算眼睛之间的距离等，调整眼镜模型的位置
-            model1.position.set(
-              (leftEye[3].x + rightEye[3].x) / 2, 
-              (leftEye[3].y + rightEye[3].y) / 2, 
-              -2
-            );
-          }
-        }, 100);
-      };
-        
-        console.log("模型加载完成！");
-        
-        // 继续执行你需要的其他逻辑
-        // 比如打开视频流并做面部检测等
-      } catch (err) {
-        console.error("加载模型时出错", err);
-      }
-    }
-  </script>
+        setup();
+    </script>
 </body>
 </html>
