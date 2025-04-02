@@ -167,8 +167,8 @@
               const leftEye = landmarks.getLeftEye();
               const rightEye = landmarks.getRightEye();
               
-      console.log('Left Eye:', leftEye[3]);
-      console.log('Right Eye:', rightEye[3]);
+              console.log('Left Eye:', leftEye[3]);
+              console.log('Right Eye:', rightEye[3]);
 
               // Calculate the position of the glasses based on eye positions
               const eyeX = (leftEye[3].x + rightEye[3].x) / 2;
@@ -176,11 +176,13 @@
 
               // Position the glasses based on the average eye position
               model1.position.set(eyeX, eyeY, -2); // Adjust the Z position for depth
-
+              console.log('position eyeX:', eyeX);
+              console.log('position eyeY:', eyeY);
               // Optional: Scale the glasses based on the distance between eyes
               const eyeDistance = Math.sqrt(
                 Math.pow(rightEye[3].x - leftEye[3].x, 2) + Math.pow(rightEye[3].y - leftEye[3].y, 2)
               );
+              console.log('eyeDistance:', eyeDistance);
               const scaleFactor = Math.max(eyeDistance / 50, 1); // Scale based on eye distance
               model1.scale.set(scaleFactor, scaleFactor, scaleFactor);
             }
