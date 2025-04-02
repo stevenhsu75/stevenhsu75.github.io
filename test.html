@@ -38,7 +38,7 @@
             await faceapi.loadFaceLandmarkModel('/')
             await faceapi.nets.ssdMobilenetv1.load('/'); // 指定模型目錄
             await faceapi.nets.faceLandmark68Net.load('/');
-            //await faceapi.nets.faceRecognitionNet.load('/');
+            await faceapi.nets.faceRecognitionNet.load('/');
 
             // 獲取視頻元素
             const video = document.getElementById('video');
