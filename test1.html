@@ -94,14 +94,14 @@
             let faces = new cv.RectVector();
             let eyes = new cv.RectVector();
             let msize = new cv.Size(30, 30); // 設定最小臉部尺寸
-            faceCascade.detectMultiScale(gray, faces, 1.1, 3, 0, msize, new cv.Size());
+            faceCascade.detectMultiScale(gray, faces, 1.1, 3, 0, msize);
 
             if (faces.size() > 0) {
                 let face = faces.get(0);
                 // 檢測眼睛
                 let faceROI = frame.roi(face);
                 // 檢測眼睛
-                classifierEyes.detectMultiScale(faceROI, eyes, 1.1, 3, 0, new cv.Size(30, 30));
+                eyeCascade.detectMultiScale(faceROI, eyes, 1.1, 3, 0, new cv.Size(30, 30));
                     let rightEye = null;
                     for (let j = 0; j < eyes.size(); j++) {
                         let eye = eyes.get(j);
