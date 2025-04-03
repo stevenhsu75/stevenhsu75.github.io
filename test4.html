@@ -1,114 +1,107 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>3D Glasses Follow Eyes</title>
-  <script  src="face-api.js"></script>
-  <script  src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
-  <style>
-    body {
-      margin: 0;
-      overflow: hidden;
-    }
-    video {
-      display: none;
-    }
-    canvas {
-      position: absolute;
-      top: 0;
-      left: 0;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>線上AR換眼鏡</title>
+
+    <!-- 引入 Materialize CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
+    <!-- 引入 face-api.js -->
+    <script src="face-api.js"></script>
+    <!-- 引入其他自訂CSS -->
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        #canvas {
+            position: absolute;
+        }
+        #video {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .container {
+            z-index: 1;
+        }
+        .btn {
+            z-index: 2;
+        }
+    </style>
 </head>
 <body>
-  <video id="videoInput" width="640" height="480" autoplay muted></video>
-  <canvas id="overlay" width="640" height="480"></canvas>
 
-  <script>
-    // 获取视频和Canvas元素
-    const video = document.getElementById('videoInput');
-    const canvas = document.getElementById('overlay');
-    const context = canvas.getContext('2d');
+    <div class="container">
+        <h3 class="center-align">線上AR換眼鏡</h3>
+        <button class="btn waves-effect waves-light" id="startBtn">啟動攝像頭</button>
+    </div>
 
-    // 创建 Three.js 场景、摄像头和渲染器
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    document.body.appendChild(renderer.domElement);
+    <video id="video" width="640" height="480" autoplay muted></video>
+    <canvas id="canvas"></canvas>
 
-    // 创建 3D 眼镜模型 (使用一个简单的矩形来模拟眼镜)
-    const geometry = new THREE.BoxGeometry(1, 0.1, 0.1);
-    const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-    const glasses = new THREE.Mesh(geometry, material);
-    scene.add(glasses);
-    camera.position.z = 5;
+    <script>
+        const video = document.getElementById("video");
+        const canvas = document.getElementById("canvas");
+        const startBtn = document.getElementById("startBtn");
 
-    // 加载 face-api.js 模型
-    Promise.all([
-      faceapi.nets.ssdMobilenetv1.load('/'),
-      faceapi.nets.faceLandmark68Net.load('/'),
-      faceapi.nets.faceRecognitionNet.load('/')
-    ]).then(startVideo);
-
-    // 启动视频流
-    function startVideo() {
-      navigator.mediaDevices.getUserMedia({ video: {} })
-        .then((stream) => {
-          video.srcObject = stream;
-        }).catch((err) => {
-          console.error('摄像头启动失败:', err);
-          alert("无法启动摄像头。请检查权限或设备设置！");
-        });
-    }
-
-    // 视频播放时检测面部
-    video.addEventListener('play', () => {
-      setInterval(async () => {
-        const detections = await faceapi.detectSingleFace(video).withFaceLandmarks();
-        if (detections) {
-          const leftEye = detections.landmarks.getLeftEye();
-          const rightEye = detections.landmarks.getRightEye();
-          
-          // 绘制眼睛位置（可选）
-          drawEyes(leftEye, rightEye);
-
-          // 移动 3D 眼镜
-          move3DEyeGlass(leftEye, rightEye);
+        // 載入 face-api.js 模型
+        async function loadModels() {
+            await faceapi.nets.ssdMobilenetv1.load('/');
+            await faceapi.nets.faceLandmark68Net.load('/');
+            await faceapi.nets.faceRecognitionNet.load('/');
+            console.log("Models Loaded!");
         }
-      }, 100);
-    });
 
-    // 在Canvas上绘制眼睛位置
-    function drawEyes(leftEye, rightEye) {
-      context.clearRect(0, 0, canvas.width, canvas.height);
-      context.beginPath();
-      context.arc(leftEye[3]._x, leftEye[3]._y, 5, 0, 2 * Math.PI);
-      context.arc(rightEye[3]._x, rightEye[3]._y, 5, 0, 2 * Math.PI);
-      context.fillStyle = "red";
-      context.fill();
-    }
+        // 啟動視頻流
+        async function startVideo() {
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: true
+            });
+            video.srcObject = stream;
+        }
 
-    // 更新 3D 眼镜的位置
-    function move3DEyeGlass(leftEye, rightEye) {
-      // 计算眼睛之间的距离，用于调整眼镜的位置
-      const eyeDistance = Math.sqrt(
-        Math.pow(rightEye[3]._x - leftEye[3]._x, 2) + Math.pow(rightEye[3]._y - leftEye[3]._y, 2)
-      );
-      
-      // 计算眼镜位置，居中在两个眼睛之间
-      glasses.position.x = (leftEye[3]._x + rightEye[3]._x) / 2;
-      glasses.position.y = (leftEye[3]._y + rightEye[3]._y) / 2;
-      glasses.position.z = 0.5 + eyeDistance * 0.01;  // 根据眼睛距离调整眼镜深度
-    }
+        // 開始偵測並疊加眼鏡
+        async function detectFace() {
+            const detections = await faceapi.detectAllFaces(video).withFaceLandmarks().withFaceDescriptors();
+            canvas.innerHTML = faceapi.createCanvasFromMedia(video);
+            const resizedCanvas = faceapi.resizeCanvas(canvas, video);
+            const ctx = resizedCanvas.getContext('2d');
 
-    // 动画循环渲染 Three.js 场景
-    function animate() {
-      requestAnimationFrame(animate);
-      renderer.render(scene, camera);
-    }
-    animate();
-  </script>
+            // 繪製眼鏡
+            detections.forEach(detection => {
+                const landmarks = detection.landmarks;
+                const leftEye = landmarks.getLeftEye();
+                const rightEye = landmarks.getRightEye();
+
+                const eyeWidth = Math.abs(leftEye[0].x - rightEye[0].x) * 2;
+                const eyeHeight = Math.abs(leftEye[1].y - rightEye[1].y) * 1.5;
+
+                const x = leftEye[0].x - eyeWidth / 4;
+                const y = leftEye[1].y - eyeHeight / 2;
+
+                const img = new Image();
+                img.src = "glasses.png"; // 這裡放你的眼鏡圖片
+                img.onload = () => {
+                    ctx.drawImage(img, x, y, eyeWidth, eyeHeight);
+                };
+            });
+        }
+
+        // 啟動程序
+        startBtn.addEventListener("click", async () => {
+            await loadModels();
+            await startVideo();
+            video.addEventListener('play', () => {
+                setInterval(detectFace, 100); // 每100ms偵測一次
+            });
+        });
+    </script>
 </body>
 </html>
