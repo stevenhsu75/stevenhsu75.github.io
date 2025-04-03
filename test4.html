@@ -52,12 +52,14 @@
       faceapi.nets.faceRecognitionNet.load('/')
     ]).then(startVideo);
 
-    // 啟動視頻
+
+     // 啟動視頻
     function startVideo() {
       navigator.mediaDevices.getUserMedia({
         video: {}
       }).then((stream) => {
         video.srcObject = stream;
+        video.play();
       }).catch((err) => {
         console.error('摄像头启动失败:', err);
         alert("无法启动摄像头。请检查权限或设备设置！");
