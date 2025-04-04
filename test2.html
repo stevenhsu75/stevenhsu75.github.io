@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D 虛擬眼鏡</title>
+    <title>WebCam 3D 虛擬眼鏡</title>
     <style>
         body { margin: 0; overflow: hidden; }
         canvas { display: block; }
     </style>
 </head>
 <body>
-    <!-- 引入 Three.js 和 GLTFLoader -->
+    <!-- 引入 Three.js 和 GLTFLoader, OrbitControls -->
     <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/loaders/GLTFLoader.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/loaders/GLTFLoader.js"></script>
 
     <script>
         // 創建場景
@@ -61,6 +61,33 @@
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
         });
+
+        // 加載 WebCam 視頻
+        var video = document.createElement('video');
+        video.autoplay = true;
+        video.loop = true;
+        video.muted = true; // 禁用回音
+        video.width = window.innerWidth;
+        video.height = window.innerHeight;
+
+        // 取得 WebCam 視頻流
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(function (stream) {
+                video.srcObject = stream;
+            })
+            .catch(function (err) {
+                console.error('WebCam 錯誤: ' + err);
+            });
+
+        // 創建 WebCam 視頻材質並將其應用於一個 3D 平面
+        var videoTexture = new THREE.VideoTexture(video);
+        var videoMaterial = new THREE.MeshBasicMaterial({ map: videoTexture });
+
+        // 創建一個平面，並將視頻材質應用到平面上
+        var planeGeometry = new THREE.PlaneGeometry(16, 9);
+        var plane = new THREE.Mesh(planeGeometry, videoMaterial);
+        plane.position.z = -5; // 放置平面在相機前方
+        scene.add(plane);
 
         // 渲染動畫
         function animate() {
