@@ -7,7 +7,7 @@
     <style>
         body { margin: 0; overflow: hidden; }
         canvas { display: block; }
-        video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: -1; }
+        video { position: absolute; top: 0; left: 0; object-fit: cover; z-index: -1; }
     </style>
 </head>
 <body>
@@ -17,11 +17,32 @@
     <script src="face-api.js"></script>
 
     <script>
+        // 動態設置渲染器和視頻解析度
+        function setRendererAndVideoResolution() {
+            const isMobile = window.innerWidth < window.innerHeight;
+
+            let width, height;
+            if (isMobile) {
+                width = 480;
+                height = 640;
+            } else {
+                width = 640;
+                height = 480;
+            }
+
+            renderer.setSize(width, height);
+            video.width = width;
+            video.height = height;
+
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+        }
+
         // 設置 Three.js
         var scene = new THREE.Scene();
         var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         var renderer = new THREE.WebGLRenderer();
-        renderer.setSize(window.innerWidth, window.innerHeight);
+        setRendererAndVideoResolution();  // 初始設置渲染器和視頻解析度
         document.body.appendChild(renderer.domElement);
 
         // 創建光源
@@ -45,8 +66,6 @@
         video.autoplay = true;
         video.loop = true;
         video.muted = true; // 禁用回音
-        video.width = window.innerWidth;
-        video.height = window.innerHeight;
 
         document.body.appendChild(video);
 
@@ -105,6 +124,11 @@
             renderer.render(scene, camera);
         }
         animate();
+
+        // 確保每次調整大小時重新設置渲染器和視頻解析度
+        window.addEventListener('resize', function () {
+            setRendererAndVideoResolution();
+        });
     </script>
 </body>
 </html>
