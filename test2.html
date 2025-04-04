@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D 模型放在 WebCam 眼睛上</title>
+    <title>虛擬眼鏡放在 WebCam 眼睛上</title>
     <style>
         body { margin: 0; overflow: hidden; }
         canvas { display: block; }
@@ -11,19 +11,15 @@
     </style>
 </head>
 <body>
-    <!-- 引入 Three.js 和 GLTFLoader, OrbitControls -->
+    <!-- 引入 Three.js, GLTFLoader, Face-api.js -->
     <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="face-api.js"></script>
 
     <script>
-        // 創建場景
+        // 設置 Three.js
         var scene = new THREE.Scene();
-
-        // 創建相機 (視角設置)
         var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-
-        // 創建渲染器
         var renderer = new THREE.WebGLRenderer();
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
@@ -33,35 +29,16 @@
         light.position.set(10, 10, 10);
         scene.add(light);
 
-        // 加載 3D 模型 (.glb 格式)
+        // 加載 3D 模型（例如虛擬眼鏡）
         var loader = new THREE.GLTFLoader();
+        var glassesModel;
         loader.load('glasses.glb', function (gltf) {
-            // 將加載的模型添加到場景中
-            scene.add(gltf.scene);
-
-            // 確保模型的尺寸和位置適合觀看
-            gltf.scene.scale.set(0.5, 0.5, 0.5);  // 根據需要調整模型大小
-            gltf.scene.position.set(0, 0, 0);  // 可調整模型位置
-        }, undefined, function (error) {
-            console.error(error);
+            glassesModel = gltf.scene;
+            glassesModel.scale.set(0.1, 0.1, 0.1);  // 調整模型大小
+            scene.add(glassesModel);
         });
 
-        // 設置相機位置
-        camera.position.set(0, 1, 5); // 相機稍微移遠一些來觀看模型
-
-        // 初始化 OrbitControls（可控制旋轉、縮放）
-        var controls = new THREE.OrbitControls(camera, renderer.domElement);
-        controls.enableDamping = true; // 啟用緩動效果
-        controls.dampingFactor = 0.25; // 調整緩動的速度
-        controls.screenSpacePanning = false; // 禁用平面滾動
-        controls.maxPolarAngle = Math.PI / 2; // 限制垂直角度
-
-        // 窗口大小改變時更新相機和渲染器
-        window.addEventListener('resize', function () {
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-        });
+        camera.position.set(0, 1, 5); // 相機稍微遠一些來觀看
 
         // 加載 WebCam 視頻
         var video = document.createElement('video');
@@ -71,8 +48,7 @@
         video.width = window.innerWidth;
         video.height = window.innerHeight;
 
-        // 顯示 WebCam 畫面在頁面上 (確保視頻流可見)
-        document.body.appendChild(video); // 將 video 元素添加到頁面
+        document.body.appendChild(video);
 
         // 取得 WebCam 視頻流
         navigator.mediaDevices.getUserMedia({ video: true })
@@ -83,24 +59,51 @@
                 console.error('WebCam 錯誤: ' + err);
             });
 
-        // 創建 WebCam 視頻材質並將其應用於一個 3D 平面
+        // 創建 WebCam 視頻材質並將其應用於 3D 平面
         var videoTexture = new THREE.VideoTexture(video);
         var videoMaterial = new THREE.MeshBasicMaterial({ map: videoTexture });
-
-        // 創建一個平面，並將視頻材質應用到平面上
         var planeGeometry = new THREE.PlaneGeometry(16, 9);
         var plane = new THREE.Mesh(planeGeometry, videoMaterial);
-        plane.position.z = -5; // 放置平面在相機前方
+        plane.position.z = -5;
         scene.add(plane);
+
+        // 加載 face-api.js 模型
+        async function loadFaceApi() {
+            await faceapi.nets.ssdMobilenetv1.load('/');
+            await faceapi.nets.faceLandmark68Net.load('/');
+            await faceapi.nets.faceRecognitionNet.load('/');
+            detectFace();
+        }
+
+        // 偵測面部
+        async function detectFace() {
+            const detections = await faceapi.detectAllFaces(video).withFaceLandmarks();
+            if (detections.length > 0) {
+                const landmarks = detections[0].landmarks;
+                const leftEye = landmarks.getLeftEye();
+                const rightEye = landmarks.getRightEye();
+                console.log('leftEye: ' + leftEye);
+                console.log('rightEye: ' + rightEye);
+
+                // 找到兩個眼睛的中點，將虛擬眼鏡放在該位置
+                const eyeCenterX = (leftEye[3].x + rightEye[3].x) / 2;
+                const eyeCenterY = (leftEye[3].y + rightEye[3].y) / 2;
+
+                // 將眼睛中心的位置映射到 3D 空間
+                if (glassesModel) {
+                    glassesModel.position.set(eyeCenterX / window.innerWidth * 2 - 1, eyeCenterY / window.innerHeight * -2 + 1, -4);
+                }
+            }
+
+            requestAnimationFrame(detectFace);
+        }
+
+        // 加載 face-api.js 模型並開始偵測
+        loadFaceApi();
 
         // 渲染動畫
         function animate() {
             requestAnimationFrame(animate);
-
-            // 更新控制器
-            controls.update();
-
-            // 渲染場景
             renderer.render(scene, camera);
         }
         animate();
