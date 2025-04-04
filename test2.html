@@ -117,9 +117,9 @@
         var videoMaterial = new THREE.MeshBasicMaterial({ map: videoTexture });
         var planeGeometry = null;
         if (isMobile)
-             planeGeometry = new THREE.PlaneGeometry(3, 4);
+             planeGeometry = new THREE.PlaneGeometry(6, 8);
         else
-             planeGeometry = new THREE.PlaneGeometry(4, 3);
+             planeGeometry = new THREE.PlaneGeometry(8, 6);
         var plane = new THREE.Mesh(planeGeometry, videoMaterial);
         plane.position.z = -5;
         scene.add(plane);
