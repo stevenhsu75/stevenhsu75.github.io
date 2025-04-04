@@ -51,7 +51,7 @@
             videoCanvas = document.createElement('canvas');
             videoCanvas.width = window.innerWidth;
             videoCanvas.height = window.innerHeight;
-            videoContext = videoCanvas.getContext('2d');
+            videoContext = videoCanvas.getContext('2d', { willReadFrequently: true });
             document.body.appendChild(videoCanvas);
 
             // 获取WebCam视频流
