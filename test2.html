@@ -34,8 +34,6 @@
             }
 
             renderer.setSize(width, height);
-            video.width = width;
-            video.height = height;
 
         document.body.appendChild(renderer.domElement);
 
@@ -60,8 +58,10 @@
         video.autoplay = true;
         video.loop = true;
         video.muted = true; // 禁用回音
-        video.width = window.innerWidth;
-        video.height = window.innerHeight;
+        //video.width = window.innerWidth;
+        //video.height = window.innerHeight;
+            video.width = width;
+            video.height = height;
 
         document.body.appendChild(video);
 
