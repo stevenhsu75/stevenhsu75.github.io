@@ -17,66 +17,55 @@
     <script src="face-api.js"></script>
 
     <script>
-        var scene, camera, renderer;
-        var glassesModel;
-
         // 設置 Three.js
-        function init() {
-            scene = new THREE.Scene();
-            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-            renderer = new THREE.WebGLRenderer();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            document.body.appendChild(renderer.domElement);
+        var scene = new THREE.Scene();
+        var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        var renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
 
-            // 創建光源
-            var light = new THREE.PointLight(0xffffff, 1, 100);
-            light.position.set(10, 10, 10);
-            scene.add(light);
+        // 創建光源
+        var light = new THREE.PointLight(0xffffff, 1, 100);
+        light.position.set(10, 10, 10);
+        scene.add(light);
 
-            // 加載 3D 模型（例如虛擬眼鏡）
-            var loader = new THREE.GLTFLoader();
-            loader.load('glasses.glb', function (gltf) {
-                glassesModel = gltf.scene;
-                glassesModel.scale.set(1.1, 1.1, 1.1);  // 調整模型大小
-                scene.add(glassesModel);
+        // 加載 3D 模型（例如虛擬眼鏡）
+        var loader = new THREE.GLTFLoader();
+        var glassesModel;
+        loader.load('glasses.glb', function (gltf) {
+            glassesModel = gltf.scene;
+            glassesModel.scale.set(1.1, 1.1, 1.1);  // 調整模型大小
+            scene.add(glassesModel);
+        });
+
+        camera.position.set(0, 1, 5); // 相機稍微遠一些來觀看
+
+        // 加載 WebCam 視頻
+        var video = document.createElement('video');
+        video.autoplay = true;
+        video.loop = true;
+        video.muted = true; // 禁用回音
+        video.width = window.innerWidth;
+        video.height = window.innerHeight;
+
+        document.body.appendChild(video);
+
+        // 取得 WebCam 視頻流
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(function (stream) {
+                video.srcObject = stream;
+            })
+            .catch(function (err) {
+                console.error('WebCam 錯誤: ' + err);
             });
 
-            // 設置相機位置
-            camera.position.set(0, 1, 5);
-
-            // 加載 WebCam 視頻
-            var video = document.createElement('video');
-            video.autoplay = true;
-            video.loop = true;
-            video.muted = true; // 禁用回音
-            video.width = window.innerWidth;
-            video.height = window.innerHeight;
-
-            document.body.appendChild(video);
-
-            // 取得 WebCam 視頻流
-            navigator.mediaDevices.getUserMedia({ video: true })
-                .then(function (stream) {
-                    video.srcObject = stream;
-                })
-                .catch(function (err) {
-                    console.error('WebCam 錯誤: ' + err);
-                });
-
-            // 創建 WebCam 視頻材質並將其應用於 3D 平面
-            var videoTexture = new THREE.VideoTexture(video);
-            var videoMaterial = new THREE.MeshBasicMaterial({ map: videoTexture });
-            var planeGeometry = new THREE.PlaneGeometry(16, 9);
-            var plane = new THREE.Mesh(planeGeometry, videoMaterial);
-            plane.position.z = -5;
-            scene.add(plane);
-
-            // 加載 face-api.js 模型
-            loadFaceApi();
-
-            // 渲染動畫
-            animate();
-        }
+        // 創建 WebCam 視頻材質並將其應用於 3D 平面
+        var videoTexture = new THREE.VideoTexture(video);
+        var videoMaterial = new THREE.MeshBasicMaterial({ map: videoTexture });
+        var planeGeometry = new THREE.PlaneGeometry(16, 9);
+        var plane = new THREE.Mesh(planeGeometry, videoMaterial);
+        plane.position.z = -5;
+        scene.add(plane);
 
         // 加載 face-api.js 模型
         async function loadFaceApi() {
@@ -100,7 +89,6 @@
 
                 // 將眼睛中心的位置映射到 3D 空間
                 if (glassesModel) {
-                    // 注意：根據屏幕大小和比例調整 3D 模型的位置
                     glassesModel.position.set(eyeCenterX / window.innerWidth * 2 - 1, eyeCenterY / window.innerHeight * -2 + 1, 0);
                 }
             }
@@ -108,21 +96,15 @@
             requestAnimationFrame(detectFace);
         }
 
+        // 加載 face-api.js 模型並開始偵測
+        loadFaceApi();
+
         // 渲染動畫
         function animate() {
             requestAnimationFrame(animate);
             renderer.render(scene, camera);
         }
-
-        // 處理視窗大小變化
-        window.addEventListener('resize', function() {
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-        });
-
-        // 開始初始化
-        init();
+        animate();
     </script>
 </body>
 </html>
