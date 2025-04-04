@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>虛擬眼鏡放在 WebCam 眼睛上</title>
+    <title>虚拟眼镜放在WebCam眼睛上</title>
     <style>
         body { margin: 0; overflow: hidden; }
         canvas { display: block; }
@@ -86,10 +86,17 @@
 
         // 加载face-api.js模型
         async function loadFaceApi() {
-            await faceapi.nets.ssdMobilenetv1.load('/');
-            await faceapi.nets.faceLandmark68Net.load('/');
-            await faceapi.nets.faceRecognitionNet.load('/');
-            detectFace();
+            try {
+                // 确保模型加载完成
+                await faceapi.nets.ssdMobilenetv1.load('/'); // 加载面部检测模型
+                await faceapi.nets.faceLandmark68Net.load('/'); // 加载面部标志点模型
+                await faceapi.nets.faceRecognitionNet.load('/'); // 加载人脸识别模型
+
+                // 确保模型加载完成后再开始面部检测
+                detectFace();
+            } catch (error) {
+                console.error('模型加载失败: ', error);
+            }
         }
 
         // 面部检测
@@ -111,7 +118,7 @@
                         glassesModel.position.set(
                             eyeCenterX / window.innerWidth * 2 - 1,  // 横坐标映射
                             eyeCenterY / window.innerHeight * -2 + 1, // 纵坐标映射
-                            -4  // 设置虚拟眼镜的深度
+                            0  // 设置虚拟眼镜的深度
                         );
                     }
                 }
