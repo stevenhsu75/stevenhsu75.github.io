@@ -55,9 +55,7 @@
         // 設置 Three.js
         var scene = new THREE.Scene();
         
-        var renderer = new THREE.WebGLRenderer();
-        //renderer.setSize(window.innerWidth, window.innerHeight);
-                    const isMobile = window.innerWidth < window.innerHeight;
+           const isMobile = window.innerWidth < window.innerHeight;
 
             var width, height;
             if (isMobile) {
@@ -68,9 +66,12 @@
                 height = 480;
             }
 
+        var camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
+        var renderer = new THREE.WebGLRenderer();
+        //renderer.setSize(window.innerWidth, window.innerHeight);
             renderer.setSize(width, height);
         //alert(width+'==='+height);
-var camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
+
         document.body.appendChild(renderer.domElement);
 
         // 創建光源
