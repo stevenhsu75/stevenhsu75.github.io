@@ -19,7 +19,7 @@
     </style>
   </head>
   <body>
-    <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;">
+    <a-scene embedded arjs>
       <!-- AR Marker -->
       <a-marker preset="hiro">
         <!-- 3D 眼鏡模型 -->
@@ -28,5 +28,13 @@
       <!-- 相機設定 -->
       <a-entity camera></a-entity>
     </a-scene>
+    <script>
+      // 创建一个隐藏的 canvas 元素，并启用 willReadFrequently 优化
+      const canvas = document.createElement('canvas');
+      const context = canvas.getContext('2d', { willReadFrequently: true });
+
+      // 将 canvas 添加到页面（如果你希望可见）
+      document.body.appendChild(canvas);
+    </script>
   </body>
 </html>
