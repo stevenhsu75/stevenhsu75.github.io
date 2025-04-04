@@ -29,12 +29,15 @@
       <a-entity camera></a-entity>
     </a-scene>
     <script>
-      // 创建一个隐藏的 canvas 元素，并启用 willReadFrequently 优化
-      const canvas = document.createElement('canvas');
-      const context = canvas.getContext('2d', { willReadFrequently: true });
+      // 等待 A-Frame 加载完毕
+      window.addEventListener('load', function() {
+        const canvas = document.querySelector('canvas');
+        if (canvas) {
+          const context = canvas.getContext('2d', { willReadFrequently: true });
 
-      // 将 canvas 添加到页面（如果你希望可见）
-      document.body.appendChild(canvas);
+          // 不需要做其他修改，AR.js 和 A-Frame 会自动使用这个 canvas。
+        }
+      });
     </script>
   </body>
 </html>
