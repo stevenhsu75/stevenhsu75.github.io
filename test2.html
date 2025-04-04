@@ -6,8 +6,7 @@
     <title>虛擬眼鏡放在 WebCam 眼睛上</title>
     <style>
         body { margin: 0; overflow: hidden; }
-        canvas { display: block; }
-        video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: -1; }
+        video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: -1;display: none; }
                 /* 将#position定位到左上角 */
         #position {
             position: absolute;
@@ -55,7 +54,7 @@
     <script>
         // 設置 Three.js
         var scene = new THREE.Scene();
-        var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        
         var renderer = new THREE.WebGLRenderer();
         //renderer.setSize(window.innerWidth, window.innerHeight);
                     const isMobile = window.innerWidth < window.innerHeight;
@@ -71,7 +70,7 @@
 
             renderer.setSize(width, height);
         //alert(width+'==='+height);
-
+var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         document.body.appendChild(renderer.domElement);
 
         // 創建光源
