@@ -40,7 +40,7 @@
             <label for="y">y:</label> 
             <input  value="1" id="yy" type="text" > 
             <label for="z">z:</label> 
-            <input  value="1" id="zz" type="text" > 
+            <input  value="0" id="zz" type="text" > 
         </div>
          <button onclick="onDecX()">
           onclick
@@ -126,9 +126,9 @@
         var yy=1;
         var zz=0;
     function onDecX() {
-      xx = $('#xx').val();
-        yy = $('#yy').val();
-        zz = $('#zz').val();
+      xx = parseFloat(document.getElementById('xx').value);
+        yy =parseFloat(document.getElementById('yy').value);
+        zz = parseFloat(document.getElementById('zz').value);
         
     }
 
