@@ -29,23 +29,23 @@
 
         // 加載 3D 模型 (.glb 格式)
         var loader = new THREE.GLTFLoader();
-        loader.load('path_to_your_model.glb', function (gltf) {
+        loader.load('glasses.glb', function (gltf) {
             // 將模型添加到場景中
             scene.add(gltf.scene);
         }, undefined, function (error) {
-            console.error(error);
+            console.log(error);
         });
 
         // 設置相機位置
         camera.position.z = 5;
 
         // 控制器（允許旋轉和縮放）
-        var controls = new THREE.OrbitControls(camera, renderer.domElement);
+       // var controls = new THREE.OrbitControls(camera, renderer.domElement);
 
         // 渲染函數
         function animate() {
             requestAnimationFrame(animate);
-            controls.update();
+            //controls.update();
             renderer.render(scene, camera);
         }
         animate();
