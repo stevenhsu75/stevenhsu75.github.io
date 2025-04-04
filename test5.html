@@ -2,9 +2,18 @@
 <html>
   <head>
     <title>AR 眼鏡模型</title>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
-    <script src="https://raw.githubusercontent.com/aframevr/aframe/master/dist/aframe-master.js"></script>
+  
+   
+
+    <!-- 先加载 THREE.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <!-- 然后加载 A-Frame  <script src="https://raw.githubusercontent.com/aframevr/aframe/master/dist/aframe-master.js"></script> -->
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+
+    <!-- 最后加载 AR.js -->
     <script src="https://cdn.jsdelivr.net/gh/jeromeetienne/AR.js/aframe/build/aframe-ar.js"></script>
+
     <style>
       body { margin: 0; overflow: hidden; }
       a-scene { width: 100vw; height: 100vh; }
