@@ -21,6 +21,8 @@
         let videoCanvas, videoContext;
         let lastDetectionTime = 0;
         const detectionInterval = 200;  // 面部检测的时间间隔 (200ms)
+        const FPS = 60;  // 设置帧率为60
+        const frameDuration = 1000 / FPS;  // 每帧的持续时间（毫秒）
 
         // 初始化Three.js
         function init() {
@@ -56,7 +58,7 @@
 
             // 获取WebCam视频流
             navigator.mediaDevices.getUserMedia({
-                video: { width: 480, height: 640 }  // 降低WebCam分辨率以提高性能
+                video: { width: 640, height: 480 }  // 降低WebCam分辨率以提高性能
             })
             .then(function (stream) {
                 var video = document.createElement('video');
@@ -121,12 +123,23 @@
         }
 
         // 渲染函数
-        function animate() {
-            // 只在每一帧中渲染
-            requestAnimationFrame(animate);
+        let lastFrameTime = 0;
 
-            // 渲染Three.js场景
-            renderer.render(scene, camera);
+        function animate() {
+            const now = performance.now();
+            const elapsed = now - lastFrameTime;
+            
+            if (elapsed > frameDuration) {
+                lastFrameTime = now - (elapsed % frameDuration);
+                
+                // 只在每一帧中渲染
+                renderer.render(scene, camera);
+
+                // 执行面部检测（可设置检测频率）
+                detectFace();
+            }
+
+            requestAnimationFrame(animate);
         }
 
         // 监听窗口大小变化
