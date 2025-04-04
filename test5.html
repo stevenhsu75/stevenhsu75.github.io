@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>AR 眼鏡模型</title>
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/jeromeetienne/AR.js/aframe/build/aframe-ar.js"></script>
+    <style>
+      body { margin: 0; overflow: hidden; }
+      a-scene { width: 100vw; height: 100vh; }
+    </style>
+  </head>
+  <body>
+    <a-scene embedded arjs>
+      <!-- AR Marker -->
+      <a-marker preset="hiro">
+        <!-- 3D 眼鏡模型 -->
+        <a-entity gltf-model="url(glasses.glb)" scale="1.2 1.2 1.2" position="0.03 0.2 0.3"></a-entity>
+      </a-marker>
+      <!-- 相機設定 -->
+      <a-entity camera></a-entity>
+    </a-scene>
+  </body>
+</html>
