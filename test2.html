@@ -141,9 +141,9 @@
        var xx = parseFloat(document.getElementById('xx').value);
        var yy =parseFloat(document.getElementById('yy').value);
        var zz = parseFloat(document.getElementById('zz').value);
-document.getElementById('xxx1').value=window.innerWidth;
+document.getElementById('xxx1').value=width ;
 document.getElementById('xxx2').value=eyeCenterX;
-document.getElementById('xxx3').value=eyeCenterX / window.innerWidth * 2;
+document.getElementById('xxx3').value=eyeCenterX / width * 2 - 1;
 
                 // 將眼睛中心的位置映射到 3D 空間
                 if (glassesModel) {
