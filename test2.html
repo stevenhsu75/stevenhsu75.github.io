@@ -122,15 +122,6 @@
             await faceapi.nets.faceRecognitionNet.load('/');
             detectFace();
         }
-        var xx=1;
-        var yy=1;
-        var zz=0;
-    function onDecX() {
-      xx = parseFloat(document.getElementById('xx').value);
-        yy =parseFloat(document.getElementById('yy').value);
-        zz = parseFloat(document.getElementById('zz').value);
-        
-    }
 
         // 偵測面部
         async function detectFace() {
@@ -143,6 +134,9 @@
                 // 找到兩個眼睛的中點，將虛擬眼鏡放在該位置
                 const eyeCenterX = (leftEye[3].x + rightEye[3].x) / 2;
                 const eyeCenterY = (leftEye[3].y + rightEye[3].y) / 2;
+       const xx = parseFloat(document.getElementById('xx').value);
+       const yy =parseFloat(document.getElementById('yy').value);
+       const zz = parseFloat(document.getElementById('zz').value);
 
                 // 將眼睛中心的位置映射到 3D 空間
                 if (glassesModel) {
