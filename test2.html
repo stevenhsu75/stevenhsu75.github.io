@@ -159,13 +159,13 @@ document.getElementById('xxx1').value=scale ;
 document.getElementById('xxx2').value=eyeCenterY ;
 var xxx3Value=(eyeCenterY-( parseFloat(document.getElementById('xxx1').value)/ 2) ) / 100;
 //document.getElementById('xxx3').value=scale;
-                scale=parseFloat(document.getElementById('xxx3').value);
+                var scale1=parseFloat(document.getElementById('xxx3').value);
 
                 // 將眼睛中心的位置映射到 3D 空間
                 if (glassesModel) {
                     //glassesModel.position.set(eyeCenterX / window.innerWidth * 2 - 1, eyeCenterY / window.innerHeight * -2 + 1, 0);
                     glassesModel.position.set(xx, yy, zz);
-                    glassesModel.scale.set(scale, scale, scale);  // 調整模型大小
+                    glassesModel.scale.set(scale1, scale1, scale1);  // 調整模型大小
                 }
             }
 
