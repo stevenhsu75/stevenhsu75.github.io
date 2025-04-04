@@ -8,6 +8,24 @@
         body { margin: 0; overflow: hidden; }
         canvas { display: block; }
         video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: -1; }
+                /* 将#position定位到左上角 */
+        #position {
+            position: absolute;
+            top: 10px;  /* 离页面顶部10px */
+            left: 10px; /* 离页面左边10px */
+            background: rgba(255, 255, 255, 0.8);  /* 添加背景色使其更显眼 */
+            padding: 10px;
+            border: 1px solid #ccc;
+        }
+
+        /* 给每个输入框和标签一些间距 */
+        #position label {
+            margin-right: 5px;
+        }
+        #position input {
+            margin-right: 10px;
+        }
+
     </style>
 </head>
 <body>
@@ -15,7 +33,23 @@
     <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/loaders/GLTFLoader.js"></script>
     <script src="face-api.js"></script>
+        <div id="position"> 
+        <div>
+            <label for="x">x:</label> 
+            <input  value="1" id="xx" type="text" > 
+            <label for="y">y:</label> 
+            <input  value="1" id="yy" type="text" > 
+            <label for="z">z:</label> 
+            <input  value="1" id="zz" type="text" > 
+        </div>
+            <button
+          class="waves-effect waves-light btn"
+          onclick="onDecX()">
+          <i class="material-icons left">X</i>
+        </button>
+    </div>
 
+      
     <script>
         // 設置 Three.js
         var scene = new THREE.Scene();
@@ -90,6 +124,15 @@
             await faceapi.nets.faceRecognitionNet.load('/');
             detectFace();
         }
+        var xx=1;
+        var yy=1;
+        var zz=0;
+    function onDecX() {
+      xx = $('#xx').val();
+        yy = $('#yy').val();
+        zz = $('#zz').val();
+        
+    }
 
         // 偵測面部
         async function detectFace() {
@@ -105,7 +148,8 @@
 
                 // 將眼睛中心的位置映射到 3D 空間
                 if (glassesModel) {
-                    glassesModel.position.set(eyeCenterX / window.innerWidth * 2 - 1, eyeCenterY / window.innerHeight * -2 + 1, 0);
+                    //glassesModel.position.set(eyeCenterX / window.innerWidth * 2 - 1, eyeCenterY / window.innerHeight * -2 + 1, 0);
+                    glassesModel.position.set(xx, yy, zz);
                 }
             }
 
