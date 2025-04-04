@@ -143,7 +143,7 @@
        var zz = parseFloat(document.getElementById('zz').value);
 document.getElementById('xxx1').value='640' ;
 document.getElementById('xxx2').value=eyeCenterX;
-document.getElementById('xxx3').value=(parseFloat(document.getElementById('xxx1').value)-(eyeCenterX / 2) ) / 100;
+document.getElementById('xxx3').value=(eyeCenterX-( parseFloat(document.getElementById('xxx1').value)/ 2) ) / 100;
 
                 // 將眼睛中心的位置映射到 3D 空間
                 if (glassesModel) {
