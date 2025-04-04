@@ -7,7 +7,7 @@
     <style>
         body { margin: 0; overflow: hidden; }
         
-        video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: -1; }
+        video { position: absolute; top: 0; left: 0; width: 10%; height: 10%; object-fit: cover; z-index: -1; }
                 /* 将#position定位到左上角 */
         #position {
             position: absolute;
@@ -85,7 +85,7 @@
         var glassesModel;
         loader.load('glasses.glb', function (gltf) {
             glassesModel = gltf.scene;
-            glassesModel.scale.set(1.1, 1.1, 1.1);  // 調整模型大小
+            glassesModel.scale.set(2, 2, 2);  // 調整模型大小
             scene.add(glassesModel);
         });
 
@@ -115,7 +115,11 @@
         // 創建 WebCam 視頻材質並將其應用於 3D 平面
         var videoTexture = new THREE.VideoTexture(video);
         var videoMaterial = new THREE.MeshBasicMaterial({ map: videoTexture });
-        var planeGeometry = new THREE.PlaneGeometry(16, 9);
+        var planeGeometry = null;
+        if (isMobile)
+             planeGeometry = new THREE.PlaneGeometry(3, 4);
+        else
+             planeGeometry = new THREE.PlaneGeometry(4, 3);
         var plane = new THREE.Mesh(planeGeometry, videoMaterial);
         plane.position.z = -5;
         scene.add(plane);
