@@ -6618,8 +6618,8 @@ ARjs.Anchor = function(arSession, markerParameters){
 	}else console.assert(false)
 
 	if( markerParameters.markersAreaEnabled === false ){
-		//var markerControls = new THREEx.ArMarkerControls(arContext, controlledObject, markerParameters)	
-		//this.controls = markerControls
+		var markerControls = new THREEx.ArMarkerControls(arContext, controlledObject, markerParameters)	
+		this.controls = markerControls
 	}else{
 		// sanity check - MUST be a trackingBackend with markers
 		console.assert( arContext.parameters.trackingBackend === 'artoolkit' || arContext.parameters.trackingBackend === 'aruco' )
