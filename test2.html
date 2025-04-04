@@ -70,7 +70,7 @@
             }
 
             renderer.setSize(width, height);
-        alert(width+'==='+height);
+        //alert(width+'==='+height);
 
         document.body.appendChild(renderer.domElement);
 
@@ -141,9 +141,9 @@
        var xx = parseFloat(document.getElementById('xx').value);
        var yy =parseFloat(document.getElementById('yy').value);
        var zz = parseFloat(document.getElementById('zz').value);
-document.getElementById('xxx1').value=640 ;
+document.getElementById('xxx1').value='640' ;
 document.getElementById('xxx2').value=eyeCenterX;
-document.getElementById('xxx3').value=eyeCenterX / document.getElementById('xxx1').value * 2 - 1;
+document.getElementById('xxx3').value=eyeCenterX / parseFloat(document.getElementById('xxx1').value) * 2 - 1;
 
                 // 將眼睛中心的位置映射到 3D 空間
                 if (glassesModel) {
