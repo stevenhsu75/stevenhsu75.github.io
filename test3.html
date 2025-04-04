@@ -152,7 +152,7 @@
         const videoHeight = videoEl.videoHeight;  // 影片的原始高度
         console.log('加载模型'+videoWidth);
         console.log('加载模型'+videoHeight);
-        alert(videoWidth+'=='=videoHeight);
+        alert(videoWidth+'=='+videoHeight);
         const resizedResult = faceapi.resizeResults(result, dims)
 
         if (withBoxes) {
