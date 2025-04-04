@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>虚拟眼镜放在WebCam眼睛上</title>
+    <title>虛擬眼鏡放在 WebCam 眼睛上</title>
     <style>
         body { margin: 0; overflow: hidden; }
         canvas { display: block; }
+        video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: -1; }
     </style>
 </head>
 <body>
@@ -16,149 +17,111 @@
     <script src="face-api.js"></script>
 
     <script>
-        let scene, camera, renderer;
-        let glassesModel;
-        let videoCanvas, videoContext;
-        let lastDetectionTime = 0;
-        const detectionInterval = 200;  // 面部检测的时间间隔 (200ms)
-        const FPS = 60;  // 设置帧率为60
-        const frameDuration = 1000 / FPS;  // 每帧的持续时间（毫秒）
+        var scene, camera, renderer;
+        var glassesModel;
 
-        // 初始化Three.js
+        // 設置 Three.js
         function init() {
-            // 初始化场景、相机和渲染器
             scene = new THREE.Scene();
             camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
             renderer = new THREE.WebGLRenderer();
             renderer.setSize(window.innerWidth, window.innerHeight);
             document.body.appendChild(renderer.domElement);
 
-            // 添加光源
+            // 創建光源
             var light = new THREE.PointLight(0xffffff, 1, 100);
             light.position.set(10, 10, 10);
             scene.add(light);
 
-            // 加载虚拟眼镜模型
+            // 加載 3D 模型（例如虛擬眼鏡）
             var loader = new THREE.GLTFLoader();
             loader.load('glasses.glb', function (gltf) {
                 glassesModel = gltf.scene;
-                glassesModel.scale.set(1.1, 1.1, 1.1);  // 调整模型大小
+                glassesModel.scale.set(1.1, 1.1, 1.1);  // 調整模型大小
                 scene.add(glassesModel);
             });
 
-            // 设置相机位置
+            // 設置相機位置
             camera.position.set(0, 1, 5);
 
-            // 创建canvas用于显示WebCam视频
-            videoCanvas = document.createElement('canvas');
-            videoCanvas.width = window.innerWidth;
-            videoCanvas.height = window.innerHeight;
-            videoContext = videoCanvas.getContext('2d', { willReadFrequently: true });
-            document.body.appendChild(videoCanvas);
+            // 加載 WebCam 視頻
+            var video = document.createElement('video');
+            video.autoplay = true;
+            video.loop = true;
+            video.muted = true; // 禁用回音
+            video.width = window.innerWidth;
+            video.height = window.innerHeight;
 
-            // 获取WebCam视频流
-            navigator.mediaDevices.getUserMedia({
-                video: { width: 640, height: 480 }  // 降低WebCam分辨率以提高性能
-            })
-            .then(function (stream) {
-                var video = document.createElement('video');
-                video.srcObject = stream;
-                video.play();
+            document.body.appendChild(video);
 
-                video.onloadeddata = function () {
-                    function drawVideo() {
-                        videoContext.drawImage(video, 0, 0, videoCanvas.width, videoCanvas.height);
-                        requestAnimationFrame(drawVideo);
-                    }
-                    drawVideo();
-                };
-            })
-            .catch(function (err) {
-                console.error('WebCam 错误: ' + err);
-            });
+            // 取得 WebCam 視頻流
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(function (stream) {
+                    video.srcObject = stream;
+                })
+                .catch(function (err) {
+                    console.error('WebCam 錯誤: ' + err);
+                });
 
-            // 加载face-api.js模型
+            // 創建 WebCam 視頻材質並將其應用於 3D 平面
+            var videoTexture = new THREE.VideoTexture(video);
+            var videoMaterial = new THREE.MeshBasicMaterial({ map: videoTexture });
+            var planeGeometry = new THREE.PlaneGeometry(16, 9);
+            var plane = new THREE.Mesh(planeGeometry, videoMaterial);
+            plane.position.z = -5;
+            scene.add(plane);
+
+            // 加載 face-api.js 模型
             loadFaceApi();
 
-            // 启动渲染循环
+            // 渲染動畫
             animate();
         }
 
-        // 加载face-api.js模型
+        // 加載 face-api.js 模型
         async function loadFaceApi() {
-            try {
-                // 确保模型加载完成
-                await faceapi.nets.ssdMobilenetv1.load('/'); // 加载面部检测模型
-                await faceapi.nets.faceLandmark68Net.load('/'); // 加载面部标志点模型
-                await faceapi.nets.faceRecognitionNet.load('/'); // 加载人脸识别模型
-
-                // 确保模型加载完成后再开始面部检测
-                detectFace();
-            } catch (error) {
-                console.error('模型加载失败: ', error);
-            }
+            await faceapi.nets.ssdMobilenetv1.load('/');
+            await faceapi.nets.faceLandmark68Net.load('/');
+            await faceapi.nets.faceRecognitionNet.load('/');
+            detectFace();
         }
 
-        // 面部检测
+        // 偵測面部
         async function detectFace() {
-            const currentTime = performance.now();
-            if (currentTime - lastDetectionTime >= detectionInterval) {
-                const detections = await faceapi.detectAllFaces(videoCanvas).withFaceLandmarks();
-                if (detections.length > 0) {
-                    const landmarks = detections[0].landmarks;
-                    const leftEye = landmarks.getLeftEye();
-                    const rightEye = landmarks.getRightEye();
+            const detections = await faceapi.detectAllFaces(video).withFaceLandmarks();
+            if (detections.length > 0) {
+                const landmarks = detections[0].landmarks;
+                const leftEye = landmarks.getLeftEye();
+                const rightEye = landmarks.getRightEye();
 
-                    // 计算眼睛的中心点
-                    const eyeCenterX = (leftEye[3].x + rightEye[3].x) / 2;
-                    const eyeCenterY = (leftEye[3].y + rightEye[3].y) / 2;
+                // 找到兩個眼睛的中點，將虛擬眼鏡放在該位置
+                const eyeCenterX = (leftEye[3].x + rightEye[3].x) / 2;
+                const eyeCenterY = (leftEye[3].y + rightEye[3].y) / 2;
 
-                    // 将眼睛中心位置映射到3D空间
-                    if (glassesModel) {
-                        glassesModel.position.set(
-                            eyeCenterX / window.innerWidth * 2 - 1,  // 横坐标映射
-                            eyeCenterY / window.innerHeight * -2 + 1, // 纵坐标映射
-                            0  // 设置虚拟眼镜的深度
-                        );
-                    }
+                // 將眼睛中心的位置映射到 3D 空間
+                if (glassesModel) {
+                    // 注意：根據屏幕大小和比例調整 3D 模型的位置
+                    glassesModel.position.set(eyeCenterX / window.innerWidth * 2 - 1, eyeCenterY / window.innerHeight * -2 + 1, 0);
                 }
-                lastDetectionTime = currentTime;
             }
 
-            // 继续面部检测
             requestAnimationFrame(detectFace);
         }
 
-        // 渲染函数
-        let lastFrameTime = 0;
-
+        // 渲染動畫
         function animate() {
-            const now = performance.now();
-            const elapsed = now - lastFrameTime;
-            
-            if (elapsed > frameDuration) {
-                lastFrameTime = now - (elapsed % frameDuration);
-                
-                // 只在每一帧中渲染
-                renderer.render(scene, camera);
-
-                // 执行面部检测（可设置检测频率）
-                detectFace();
-            }
-
             requestAnimationFrame(animate);
+            renderer.render(scene, camera);
         }
 
-        // 监听窗口大小变化
+        // 處理視窗大小變化
         window.addEventListener('resize', function() {
             renderer.setSize(window.innerWidth, window.innerHeight);
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
-            videoCanvas.width = window.innerWidth;
-            videoCanvas.height = window.innerHeight;
         });
 
-        // 启动初始化
+        // 開始初始化
         init();
     </script>
 </body>
