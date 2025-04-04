@@ -148,6 +148,11 @@
       if (result) {
         const canvas = $('#overlay').get(0)
         const dims = faceapi.matchDimensions(canvas, videoEl, true)
+        const videoWidth = videoEl.videoWidth;  // 影片的原始寬度
+        const videoHeight = videoEl.videoHeight;  // 影片的原始高度
+        console.log('加载模型'+videoWidth);
+        console.log('加载模型'+videoHeight);
+        alert(videoWidth+'=='=videoHeight);
         const resizedResult = faceapi.resizeResults(result, dims)
 
         if (withBoxes) {
