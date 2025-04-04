@@ -12,12 +12,16 @@
 <body>
     <!-- 引入 Three.js 和 GLTFLoader -->
     <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
 
     <script>
-        // 基本設置
+        // 創建場景
         var scene = new THREE.Scene();
+
+        // 創建相機 (視角設置)
         var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+        // 創建渲染器
         var renderer = new THREE.WebGLRenderer();
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
@@ -30,22 +34,41 @@
         // 加載 3D 模型 (.glb 格式)
         var loader = new THREE.GLTFLoader();
         loader.load('glasses.glb', function (gltf) {
-            // 將模型添加到場景中
+            // 將加載的模型添加到場景中
             scene.add(gltf.scene);
+
+            // 確保模型的尺寸和位置適合觀看
+            gltf.scene.scale.set(1, 1, 1);  // 可根據需要調整模型大小
+            gltf.scene.position.set(0, 0, 0);  // 可調整模型位置
         }, undefined, function (error) {
-            console.log(error);
+            console.error(error);
         });
 
         // 設置相機位置
-        camera.position.z = 5;
+        camera.position.set(0, 1, 5); // 相機稍微移遠一些來觀看模型
 
-        // 控制器（允許旋轉和縮放）
-       // var controls = new THREE.OrbitControls(camera, renderer.domElement);
+        // 初始化 OrbitControls（可控制旋轉、縮放）
+        var controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true; // 啟用緩動效果
+        controls.dampingFactor = 0.25; // 調整緩動的速度
+        controls.screenSpacePanning = false; // 禁用平面滾動
+        controls.maxPolarAngle = Math.PI / 2; // 限制垂直角度
 
-        // 渲染函數
+        // 窗口大小改變時更新相機和渲染器
+        window.addEventListener('resize', function () {
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+        });
+
+        // 渲染動畫
         function animate() {
             requestAnimationFrame(animate);
-            //controls.update();
+
+            // 更新控制器
+            controls.update();
+
+            // 渲染場景
             renderer.render(scene, camera);
         }
         animate();
