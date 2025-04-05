@@ -85,7 +85,7 @@
         var glassesModel;
         loader.load('glasses.glb', function (gltf) {
             glassesModel = gltf.scene;
-            glassesModel.scale.set(1, 1, 1);  // 調整模型大小
+            glassesModel.scale.set(1.1, 1.1, 1.1);  // 調整模型大小
             scene.add(glassesModel);
 
                     glassesModel.updateWorldMatrix(true, true);
