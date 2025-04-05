@@ -165,9 +165,10 @@
        var xx = parseFloat(document.getElementById('xx').value);
        var yy =parseFloat(document.getElementById('yy').value);
        var zz = parseFloat(document.getElementById('zz').value);
-                //console.log('xxx1 start');
+                console.log('xxx1 start');
 document.getElementById('xxx1').value= width ;
-                //console.log('xxx2 start');
+                console.log('xxx2 start');
+                
 document.getElementById('xxx2').value=eyeCenterX / parseFloat(width) * 2 - 1 ;
 //var xxx3Value=(eyeCenterY-( parseFloat(document.getElementById('xxx1').value)/ 2) ) / 100;
 //document.getElementById('xxx3').value=scale;
@@ -175,9 +176,10 @@ document.getElementById('xxx2').value=eyeCenterX / parseFloat(width) * 2 - 1 ;
 
                 // 將眼睛中心的位置映射到 3D 空間
                 if (glassesModel) {
+                    console.log('glassesModel start');
                     //glassesModel.position.set(eyeCenterX / window.innerWidth * 2 - 1, eyeCenterY / window.innerHeight * -2 + 1, 0);
                     glassesModel.position.set(xx, yy, zz);
-                    console.log('glassesModel start');
+                    console.log('glassesModel end');
                 //    glassesModel.scale.set(scale1, scale1, scale1);  // 調整模型大小
                 }
             }
