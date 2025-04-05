@@ -100,7 +100,7 @@
 
         });
 
-
+console.log('加載WebCam start');
         camera.position.set(0, 1, 5); // 相機稍微遠一些來觀看
 
         // 加載 WebCam 視頻
@@ -112,9 +112,9 @@
         //video.height = window.innerHeight;
             video.width = width;
             video.height = height;
-
         document.body.appendChild(video);
 
+console.log('WebCam 視頻流 start');
         // 取得 WebCam 視頻流
         navigator.mediaDevices.getUserMedia({ video: true })
             .then(function (stream) {
@@ -123,7 +123,7 @@
             .catch(function (err) {
                 console.error('WebCam 錯誤: ' + err);
             });
-
+console.log('創建 WebCam start');
         // 創建 WebCam 視頻材質並將其應用於 3D 平面
         var videoTexture = new THREE.VideoTexture(video);
         var videoMaterial = new THREE.MeshBasicMaterial({ map: videoTexture });
@@ -169,7 +169,7 @@
        var zz = parseFloat(document.getElementById('zz').value);
                 console.log('xxx1 start');
 document.getElementById('xxx1').value= width ;
-                console.log('xxx2 start');
+                
                 
 document.getElementById('xxx2').value=eyeCenterX / parseFloat(width) * 2 - 1 ;
 //var xxx3Value=(eyeCenterY-( parseFloat(document.getElementById('xxx1').value)/ 2) ) / 100;
@@ -194,8 +194,10 @@ document.getElementById('xxx2').value=eyeCenterX / parseFloat(width) * 2 - 1 ;
 
         // 渲染動畫
         function animate() {
+            console.log('animate start');
             requestAnimationFrame(animate);
             renderer.render(scene, camera);
+            console.log('animate end');
         }
         animate();
     </script>
