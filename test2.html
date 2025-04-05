@@ -88,6 +88,8 @@
             glassesModel.scale.set(2, 2, 2);  // 調整模型大小
             scene.add(glassesModel);
         });
+
+        glassesModel.updateWorldMatrix(true, true);
     // 獲取模型的長寬高
     var box = new THREE.Box3().setFromObject(glassesModel);
     var size = new THREE.Vector3();
