@@ -40,11 +40,11 @@
             <label for="yy">yy:</label> 
             <input  value="1" id="yy" type="text" > 
             <label for="zz">zz:</label> 
-            <input  value="0" id="zz" type="text" > 
+            <input  value="1" id="zz" type="text" > 
             <label for="xxx1">xxx1:</label> 
-            <input  value="0" id="xxx1" type="text" > 
+            <input  value="1" id="xxx1" type="text" > 
             <label for="xxx2">xxx2:</label> 
-            <input  value="0" id="xxx2" type="text" > 
+            <input  value="1" id="xxx2" type="text" > 
             <label for="xxx3">xxx3:</label> 
             <input  value="1" id="xxx3" type="text" > 
         </div>
@@ -85,7 +85,7 @@
         var glassesModel;
         loader.load('glasses.glb', function (gltf) {
             glassesModel = gltf.scene;
-            glassesModel.scale.set(1.1, 1.1, 1.1);  // 調整模型大小
+            glassesModel.scale.set(2, 2, 2);  // 調整模型大小
             scene.add(glassesModel);
 
                     glassesModel.updateWorldMatrix(true, true);
