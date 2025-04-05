@@ -84,20 +84,19 @@
         var loader = new THREE.GLTFLoader();
         var glassesModel;
         loader.load('glasses.glb', function (gltf) {
+            console.log('loader.load glasses');
             glassesModel = gltf.scene;
             glassesModel.scale.set(2, 2, 2);  // 調整模型大小
             scene.add(glassesModel);
 
-                    glassesModel.updateWorldMatrix(true, true);
+    glassesModel.updateWorldMatrix(true, true);
     // 獲取模型的長寬高
     var box = new THREE.Box3().setFromObject(glassesModel);
     var size = new THREE.Vector3();
     box.getSize(size);
-
     console.log('模型長度:', size.x);
     console.log('模型寬度:', size.y);
     console.log('模型高度:', size.z);
-
         });
 
 console.log('加載WebCam start');
