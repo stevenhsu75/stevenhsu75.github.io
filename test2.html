@@ -137,6 +137,7 @@ console.log('創建 WebCam start');
 
         // 加載 face-api.js 模型
         async function loadFaceApi() {
+            try {
             console.log('loadFaceApi ssdMobilenetv1 start');
             await faceapi.nets.ssdMobilenetv1.load('/');
             console.log('loadFaceApi faceLandmark68Net start');
@@ -145,6 +146,11 @@ console.log('創建 WebCam start');
             await faceapi.nets.faceRecognitionNet.load('/');
             console.log('loadFaceApi end');
             detectFace();
+            } catch (error) {
+             console.error('加載模型時發生錯誤:', error);
+                }
+    }
+
         }
 
         // 偵測面部
