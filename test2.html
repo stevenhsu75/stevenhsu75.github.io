@@ -168,7 +168,9 @@ console.log('創建 WebCam start');
              console.error('加載模型時發生錯誤:', error);
                 }
         }
-
+var xx;
+        var yy;
+        
         // 偵測面部
         async function detectFace() {
             const detections = await faceapi.detectAllFaces(video).withFaceLandmarks();
@@ -187,14 +189,14 @@ console.log('創建 WebCam start');
                 );
                 const scale = Math.min(eyeDistance / 50, 1.5);  // 你可以調整這個係數來達到理想的大小
 
-       var xx = parseFloat(document.getElementById('xx').value);
-       var yy =parseFloat(document.getElementById('yy').value);
-       var zz = parseFloat(document.getElementById('zz').value);
+        xx = eyeCenterX;
+        yy =eyeCenterY;
+       //var zz = parseFloat(document.getElementById('zz').value);
                // console.log('xxx1 start');
-document.getElementById('xxx1').value= width ;
+//document.getElementById('xxx1').value= width ;
                 
                 
-document.getElementById('xxx2').value=eyeCenterX / parseFloat(width) * 2 - 1 ;
+//document.getElementById('xxx2').value=eyeCenterX / parseFloat(width) * 2 - 1 ;
 //var xxx3Value=(eyeCenterY-( parseFloat(document.getElementById('xxx1').value)/ 2) ) / 100;
 //document.getElementById('xxx3').value=scale;
    //             var scale1=parseFloat(document.getElementById('xxx3').value);
@@ -203,7 +205,7 @@ document.getElementById('xxx2').value=eyeCenterX / parseFloat(width) * 2 - 1 ;
                 if (glassesModel) {
                     //console.log('glassesModel start');
                     //glassesModel.position.set(eyeCenterX / window.innerWidth * 2 - 1, eyeCenterY / window.innerHeight * -2 + 1, 0);
-                    glassesModel.position.set(xx, yy, zz);
+                  //  glassesModel.position.set(xx, yy, zz);
                     //console.log('glassesModel end');
                 //    glassesModel.scale.set(scale1, scale1, scale1);  // 調整模型大小
                 }
@@ -221,7 +223,7 @@ document.getElementById('xxx2').value=eyeCenterX / parseFloat(width) * 2 - 1 ;
         //    requestAnimationFrame(animate);
             //renderer.render(scene, camera);
                   // Draw the current video frame on the canvas
-    //  ctx.drawImage(video, 0, 0, width, height);
+      ctx.drawImage(video, 0, 0, width, height);
 
       // If the glasses model is loaded, render it as a 2D texture
 if (glassesModel) {
@@ -236,7 +238,7 @@ if (glassesModel) {
         const texture = renderTarget.texture;
 
         // Position and scale the glasses (the 2D rendered texture) based on eye positions
-        ctx.drawImage(texture.image, eyeX, eyeY, eyeWidth, eyeHeight);
+        ctx.drawImage(texture.image, eyeX, eyeY, 150, 150);
 
         }
         animate();
