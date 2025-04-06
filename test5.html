@@ -93,10 +93,10 @@
                 const landmarks = detections[0].landmarks;
                 const leftEye = landmarks.getLeftEye();
                 const rightEye = landmarks.getRightEye();
-              eyeX = (leftEye[3].x + rightEye[3].x) / 2;
+              eyeX = (leftEye[0].x + rightEye[3].x) / 2;
               eyeY = (leftEye[3].y + rightEye[3].y) / 2;
-              eyeWidth = (eyeX - leftEye[3].x) * 2;
-              //eyeHeight = (eyeX - leftEye[3].x) * 2;
+              eyeWidth = (eyeX - leftEye[0].x) * 2;
+              eyeHeight = (eyeX - leftEye[0].x) * 2 / 220 * 80 ;
 
              // Draw the current video frame on the canvas
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
@@ -127,19 +127,19 @@
         }
 
         // Put the image data on the canvas
-        console.log('模型1:',eyeX - eyeWidth / 2);
-        console.log('模型2-0:',leftEye[0].x + '||' + leftEye[0].y);
-        console.log('模型2-1:',leftEye[1].x + '||' + leftEye[1].y);
-        console.log('模型2-2:',leftEye[2].x + '||' + leftEye[2].y);
-        console.log('模型2-3:',leftEye[3].x + '||' + leftEye[3].y);
-        console.log('模型2-4:',leftEye[4].x + '||' + leftEye[4].y);
-        console.log('模型2-5:',leftEye[5].x + '||' + leftEye[5].y);
-        console.log('模型3-0:',rightEye[0].x + '||' + rightEye[0].y);
-        console.log('模型3-1:',rightEye[1].x + '||' + rightEye[1].y);
-        console.log('模型3-2:',rightEye[2].x + '||' + rightEye[2].y);
-        console.log('模型3-3:',rightEye[3].x + '||' + rightEye[3].y);
-        console.log('模型3-4:',rightEye[4].x + '||' + rightEye[4].y);
-        console.log('模型3-5:',rightEye[5].x + '||' + rightEye[5].y);
+        //console.log('模型1:',eyeX - eyeWidth / 2);
+        //console.log('模型2-0:',leftEye[0].x + '||' + leftEye[0].y);
+        //console.log('模型2-1:',leftEye[1].x + '||' + leftEye[1].y);
+        //console.log('模型2-2:',leftEye[2].x + '||' + leftEye[2].y);
+        //console.log('模型2-3:',leftEye[3].x + '||' + leftEye[3].y);
+        //console.log('模型2-4:',leftEye[4].x + '||' + leftEye[4].y);
+        //console.log('模型2-5:',leftEye[5].x + '||' + leftEye[5].y);
+        //console.log('模型3-0:',rightEye[0].x + '||' + rightEye[0].y);
+        //console.log('模型3-1:',rightEye[1].x + '||' + rightEye[1].y);
+        //console.log('模型3-2:',rightEye[2].x + '||' + rightEye[2].y);
+        //console.log('模型3-3:',rightEye[3].x + '||' + rightEye[3].y);
+        //console.log('模型3-4:',rightEye[4].x + '||' + rightEye[4].y);
+        //console.log('模型3-5:',rightEye[5].x + '||' + rightEye[5].y);
         //ctx.putImageData(imageData, eyeX - eyeWidth / 2, eyeY - eyeHeight / 2);
         ctx.drawImage(glasses1, eyeX - eyeWidth / 2, eyeY - eyeHeight / 2, eyeWidth, eyeHeight);
         
