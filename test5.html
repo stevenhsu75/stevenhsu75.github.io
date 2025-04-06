@@ -17,7 +17,7 @@
   <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/loaders/GLTFLoader.js"></script>
 
-  <script>
+<script>
     const video = document.getElementById('video');
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d', { willReadFrequently: true });
@@ -83,19 +83,26 @@
         // Reset render target to the default framebuffer (for normal canvas rendering)
         renderer.setRenderTarget(null);
 
-        // Get the texture from the render target
-        const texture = renderTarget.texture;
+        // Read pixels from the render target
+        const pixels = new Uint8Array(4 * renderTarget.width * renderTarget.height);
+        renderer.readRenderTargetPixels(renderTarget, 0, 0, renderTarget.width, renderTarget.height, pixels);
 
-        // Position and scale the glasses (the 2D rendered texture) based on eye positions
-    // 确保纹理包含图像（访问纹理的image属性）
-        if (texture.image) {
-          // Position and scale the glasses (the 2D rendered texture) based on eye positions
-          ctx.drawImage(texture.image, eyeX, eyeY, eyeWidth, eyeHeight);
-        } else {
-          console.error("纹理图像尚未加载或无效！");
+        // Create a new image to hold the pixel data
+        const imageData = ctx.createImageData(renderTarget.width, renderTarget.height);
+        for (let i = 0; i < pixels.length; i += 4) {
+          imageData.data[i] = pixels[i];     // Red
+          imageData.data[i + 1] = pixels[i+1]; // Green
+          imageData.data[i + 2] = pixels[i+2]; // Blue
+          imageData.data[i + 3] = pixels[i+3]; // Alpha
         }
 
-     //   ctx.drawImage(texture.image, eyeX, eyeY, eyeWidth, eyeHeight);
+        // Put the image data on the canvas
+        ctx.putImageData(imageData, eyeX, eyeY);
+
+        // Optional: Draw a bounding box to show glasses' position
+        ctx.strokeStyle = 'red';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(eyeX, eyeY, eyeWidth, eyeHeight);
       }
     }
   </script>
