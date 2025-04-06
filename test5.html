@@ -105,7 +105,7 @@
         console.log('模型1:',eyeX - eyeWidth / 2);
         console.log('模型2:',eyeY - eyeHeight / 2);
         //ctx.putImageData(imageData, eyeX - eyeWidth / 2, eyeY - eyeHeight / 2);
-        ctx.putImageData(glasses1, eyeX - eyeWidth / 2, eyeY - eyeHeight / 2);
+        ctx.drawImage(glasses1, eyeX - eyeWidth / 2, eyeY - eyeHeight / 2, eyeWidth, eyeHeight);
         
 
         // Optional: Draw a bounding box to show glasses' position
