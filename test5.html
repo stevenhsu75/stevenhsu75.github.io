@@ -88,10 +88,12 @@
 
         // Position and scale the glasses (the 2D rendered texture) based on eye positions
     // 确保纹理包含图像（访问纹理的image属性）
-    if (texture.image) {
-      // 根据眼睛的位置和大小将眼镜的2D渲染纹理绘制到画布上
-      ctx.drawImage(texture.image, eyeX, eyeY, eyeWidth, eyeHeight);
-    }
+        if (texture.image) {
+          // Position and scale the glasses (the 2D rendered texture) based on eye positions
+          ctx.drawImage(texture.image, eyeX, eyeY, eyeWidth, eyeHeight);
+        } else {
+          console.error("纹理图像尚未加载或无效！");
+        }
 
      //   ctx.drawImage(texture.image, eyeX, eyeY, eyeWidth, eyeHeight);
       }
