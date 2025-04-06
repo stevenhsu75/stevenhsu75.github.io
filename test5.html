@@ -14,8 +14,8 @@
   <canvas id="canvas"></canvas>
   
   <!-- Load Three.js and GLTFLoader -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three/examples/js/loaders/GLTFLoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/loaders/GLTFLoader.js"></script>
 
   <script>
     const video = document.getElementById('video');
@@ -37,7 +37,7 @@
     const loader = new THREE.GLTFLoader();
     let glasses = null;
 
-    loader.load('path_to_your_model/glasses.glb', (gltf) => {
+    loader.load('glasses.glb', (gltf) => {
       glasses = gltf.scene;
       scene.add(glasses);
       
