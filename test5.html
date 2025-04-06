@@ -87,7 +87,13 @@
         const texture = renderTarget.texture;
 
         // Position and scale the glasses (the 2D rendered texture) based on eye positions
-        ctx.drawImage(texture.image, eyeX, eyeY, eyeWidth, eyeHeight);
+    // 确保纹理包含图像（访问纹理的image属性）
+    if (texture.image) {
+      // 根据眼睛的位置和大小将眼镜的2D渲染纹理绘制到画布上
+      ctx.drawImage(texture.image, eyeX, eyeY, eyeWidth, eyeHeight);
+    }
+
+     //   ctx.drawImage(texture.image, eyeX, eyeY, eyeWidth, eyeHeight);
       }
     }
   </script>
