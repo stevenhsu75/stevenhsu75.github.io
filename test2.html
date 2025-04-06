@@ -26,6 +26,8 @@
             margin-right: 10px;
         }
 
+    canvas { position: absolute; top: 0; left: 0; }
+  
     </style>
 </head>
 <body>
@@ -33,7 +35,9 @@
     <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/loaders/GLTFLoader.js"></script>
     <script src="face-api.js"></script>
-        <div id="position"> 
+   <video id="video" width="640" height="480" autoplay muted playsinline></video>
+  <canvas id="canvas"></canvas>
+       <div id="position"> 
         <div>
             <label for="xx">xx:</label> 
             <input  value="1" id="xx" type="text" > 
@@ -54,7 +58,6 @@
       
     <script>
         // 設置 Three.js
-        var scene = new THREE.Scene();
         
            const isMobile = window.innerWidth < window.innerHeight;
 
@@ -66,9 +69,24 @@
                 width = 640;
                 height = 480;
             }
+        
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
 
+    // Set canvas size to video size
+    canvas.width = width;
+    canvas.height = height;
+
+
+        var scene = new THREE.Scene();
         var camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
-        var renderer = new THREE.WebGLRenderer();
+       // var renderer = new THREE.WebGLRenderer();
+
+        var renderer = new THREE.WebGLRenderer({ canvas: document.createElement('canvas') });
+        renderer.setSize(width, height); // Match the video size
+        const renderTarget = new THREE.WebGLRenderTarget(width, height); // Render to this target
+        
         //renderer.setSize(window.innerWidth, window.innerHeight);
             renderer.setSize(width, height);
         //alert(width+'==='+height);
@@ -172,7 +190,7 @@ console.log('創建 WebCam start');
        var xx = parseFloat(document.getElementById('xx').value);
        var yy =parseFloat(document.getElementById('yy').value);
        var zz = parseFloat(document.getElementById('zz').value);
-                console.log('xxx1 start');
+               // console.log('xxx1 start');
 document.getElementById('xxx1').value= width ;
                 
                 
@@ -183,10 +201,10 @@ document.getElementById('xxx2').value=eyeCenterX / parseFloat(width) * 2 - 1 ;
 
                 // 將眼睛中心的位置映射到 3D 空間
                 if (glassesModel) {
-                    console.log('glassesModel start');
+                    //console.log('glassesModel start');
                     //glassesModel.position.set(eyeCenterX / window.innerWidth * 2 - 1, eyeCenterY / window.innerHeight * -2 + 1, 0);
                     glassesModel.position.set(xx, yy, zz);
-                    console.log('glassesModel end');
+                    //console.log('glassesModel end');
                 //    glassesModel.scale.set(scale1, scale1, scale1);  // 調整模型大小
                 }
             }
@@ -198,11 +216,28 @@ document.getElementById('xxx2').value=eyeCenterX / parseFloat(width) * 2 - 1 ;
         loadFaceApi();
 
         // 渲染動畫
-        function animate() {
+      //  function animate() {
             
-            requestAnimationFrame(animate);
-            renderer.render(scene, camera);
-            
+        //    requestAnimationFrame(animate);
+            //renderer.render(scene, camera);
+                  // Draw the current video frame on the canvas
+    //  ctx.drawImage(video, 0, 0, width, height);
+
+      // If the glasses model is loaded, render it as a 2D texture
+if (glassesModel) {
+        // Render the glasses model to the render target (off-screen)
+        renderer.setRenderTarget(renderTarget);
+        renderer.render(scene, camera);
+
+        // Reset render target to the default framebuffer (for normal canvas rendering)
+        renderer.setRenderTarget(null);
+
+        // Get the texture from the render target
+        const texture = renderTarget.texture;
+
+        // Position and scale the glasses (the 2D rendered texture) based on eye positions
+        ctx.drawImage(texture.image, eyeX, eyeY, eyeWidth, eyeHeight);
+
         }
         animate();
     </script>
