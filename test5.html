@@ -128,7 +128,8 @@
 
         // Put the image data on the canvas
         console.log('模型1:',eyeX - eyeWidth / 2);
-        console.log('模型2:',leftEye[3].y);
+        console.log('模型2-1:',leftEye[3].y);
+        console.log('模型2-2:',leftEye[4].y);
         console.log('模型3:',rightEye[3].y);
         //ctx.putImageData(imageData, eyeX - eyeWidth / 2, eyeY - eyeHeight / 2);
         ctx.drawImage(glasses1, eyeX - eyeWidth / 2, eyeY - eyeHeight / 2, eyeWidth, eyeHeight);
