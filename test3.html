@@ -161,15 +161,15 @@
         faceapi.draw.drawFaceLandmarks(canvas, resizedResult)
 
             // Extract eyes from the landmarks
-    const { landmarks } = resizedResult
-    const eyes = landmarks.getEyes()
+   // const { landmarks } = resizedResult
+//const eyes = landmarks.getEyes()
 
-    // Draw bounding box around the eyes
-    eyes.forEach(eye => {
-      const { x, y, width, height } = faceapi.boundingBoxFromPoints(eye)
-      const box = new faceapi.draw.DrawBox({ x, y, width, height }, { label: 'Eyes' })
-      box.draw(canvas)
-    })
+   // // Draw bounding box around the eyes
+   // eyes.forEach(eye => {
+   //   const { x, y, width, height } = faceapi.boundingBoxFromPoints(eye)
+//const box = new faceapi.draw.DrawBox({ x, y, width, height }, { label: 'Eyes' })
+   //   box.draw(canvas)
+ //   })
       }
 
       setTimeout(() => onPlay())
