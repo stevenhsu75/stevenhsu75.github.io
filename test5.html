@@ -16,7 +16,7 @@
   <!-- Load Three.js and GLTFLoader -->
   <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/loaders/GLTFLoader.js"></script>
-
+  <script src="face-api.js"></script>
 <script>
     const video = document.getElementById('video');
     const canvas = document.getElementById('canvas');
@@ -52,28 +52,51 @@
     navigator.mediaDevices.getUserMedia({ video: true })
       .then((stream) => {
         video.srcObject = stream;
-        video.play();
+       // video.play();
 
-        video.onloadedmetadata = () => {
+       // video.onloadedmetadata = () => {
           // Start rendering loop after video is ready
-          animate();
-        };
+       //   animate();
+       // };
       })
       .catch((err) => {
         console.error('Error accessing webcam:', err);
       });
 
+          // 加載 face-api.js 模型
+        async function loadFaceApi() {
+            try {
+            console.log('loadFaceApi ssdMobilenetv1 start');
+            await faceapi.nets.ssdMobilenetv1.load('/');
+            console.log('loadFaceApi faceLandmark68Net start');
+            await faceapi.nets.faceLandmark68Net.load('/');
+            console.log('loadFaceApi faceRecognitionNet start');
+            await faceapi.nets.faceRecognitionNet.load('/');
+            console.log('loadFaceApi end');
+            detectFace();
+            } catch (error) {
+             console.error('加載模型時發生錯誤:', error);
+                }
+        }
+
+
     // Eye position and scale (example values, these should come from face detection)
     let eyeX = 200;  // Example x position of the eyes
     let eyeY = 150;  // Example y position of the eyes
-    let eyeWidth = 225; // Width of the glasses
-    let eyeHeight = 92; // Height of the glasses
+    let eyeWidth = 220; // Width of the glasses
+    let eyeHeight = 80; // Height of the glasses
 
     // Function to render the video and overlay 3D glasses as 2D
-    function animate() {
-      requestAnimationFrame(animate);
+     async function detectFace() {
+            const detections = await faceapi.detectAllFaces(video).withFaceLandmarks();
+            if (detections.length > 0) {
+                const landmarks = detections[0].landmarks;
+                const leftEye = landmarks.getLeftEye();
+                const rightEye = landmarks.getRightEye();
+              eyeX = (leftEye[3].x + rightEye[3].x) / 2;
+              eyeY = (leftEye[3].y + rightEye[3].y) / 2;
 
-      // Draw the current video frame on the canvas
+             // Draw the current video frame on the canvas
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
       //ctx.fillStyle = 'blue';
@@ -115,7 +138,17 @@
         console.log('Rect2:',eyeY - eyeHeight / 2);
         ctx.strokeRect(eyeX - eyeWidth / 2, eyeY - eyeHeight / 2, eyeWidth, eyeHeight);
       }
+              }
+requestAnimationFrame(detectFace);
+     }
+  loadFaceApi();
+    function animate() {
+      requestAnimationFrame(animate);
+      renderer.render(scene, camera);
+
     }
+  animate();
+  
   </script>
 </body>
 </html>
