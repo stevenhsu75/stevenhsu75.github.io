@@ -42,8 +42,8 @@
       scene.add(glasses);
       
       // Adjust the model position and scale based on the eye positions
-      glasses.scale.set(0.3, 0.3, 0.3);  // Example scale for the glasses model
-      glasses.position.set(0, -0.5, -2);   // Adjust the glasses' position in front of the camera
+      glasses.scale.set(0.5, 0.5, 0.5);  // Example scale for the glasses model
+      glasses.position.set(0, 0, -1);   // Adjust the glasses' position in front of the camera
     });
 
     // Set up video stream (webcam)
@@ -97,11 +97,15 @@
         }
 
         // Put the image data on the canvas
+        console.log('模型1:',eyeX - eyeWidth / 4);
+        console.log('模型2:',eyeY - eyeHeight / 4);
         ctx.putImageData(imageData, eyeX - eyeWidth / 4, eyeY - eyeHeight / 4);
 
         // Optional: Draw a bounding box to show glasses' position
         ctx.strokeStyle = 'red';
         ctx.lineWidth = 2;
+        console.log('Rect1:',eyeX - eyeWidth / 2);
+        console.log('Rect2:',eyeY - eyeHeight / 2);
         ctx.strokeRect(eyeX - eyeWidth / 2, eyeY - eyeHeight / 2, eyeWidth, eyeHeight);
       }
     }
