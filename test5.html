@@ -45,7 +45,7 @@
       
       // Adjust the model position and scale based on the eye positions
       glasses.scale.set(0.5, 0.5, 0.5);  // Example scale for the glasses model
-      glasses.position.set(0, 0, -1);   // Adjust the glasses' position in front of the camera
+      glasses.position.set(0, 0, -0.1);   // Adjust the glasses' position in front of the camera
     });
 
     // Set up video stream (webcam)
@@ -66,8 +66,8 @@
     // Eye position and scale (example values, these should come from face detection)
     let eyeX = 200;  // Example x position of the eyes
     let eyeY = 150;  // Example y position of the eyes
-    let eyeWidth = 120; // Width of the glasses
-    let eyeHeight = 40; // Height of the glasses
+    let eyeWidth = 225; // Width of the glasses
+    let eyeHeight = 92; // Height of the glasses
 
     // Function to render the video and overlay 3D glasses as 2D
     function animate() {
