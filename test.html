@@ -96,7 +96,9 @@
 
       navigator.mediaDevices.getUserMedia({ video: true })
         .then((stream) => {
+          const video = document.createElement('video'); // Create the video element
           video.srcObject = stream;
+
           video.play();
 
           videoTexture = new THREE.VideoTexture(video);
