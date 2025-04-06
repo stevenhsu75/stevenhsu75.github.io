@@ -97,12 +97,12 @@
         }
 
         // Put the image data on the canvas
-        ctx.putImageData(imageData, eyeX, eyeY);
+        ctx.putImageData(imageData, eyeX - eyeWidth / 2, eyeY - eyeHeight / 2);
 
         // Optional: Draw a bounding box to show glasses' position
         ctx.strokeStyle = 'red';
         ctx.lineWidth = 2;
-        ctx.strokeRect(eyeX, eyeY, eyeWidth, eyeHeight);
+        ctx.strokeRect(eyeX - eyeWidth / 2, eyeY - eyeHeight / 2, eyeWidth, eyeHeight);
       }
     }
   </script>
