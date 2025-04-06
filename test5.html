@@ -74,6 +74,9 @@
       // Draw the current video frame on the canvas
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
+      ctx.fillStyle = 'blue';
+      ctx.fillRect(eyeX - eyeWidth / 2, eyeY - eyeHeight / 2, eyeWidth, eyeHeight);  // Draw blue background where the glasses will go
+
       // If the glasses model is loaded, render it as a 2D texture
       if (glasses) {
         // Render the glasses model to the render target (off-screen)
