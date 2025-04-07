@@ -21,19 +21,17 @@
     const video = document.getElementById('video');
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    const isMobile = window.innerWidth < window.innerHeight;
+    var width, height;
+    if (isMobile) {
+        width = 480;
+        height = 640;
+    } else {
+        width = 640;
+        height = 480;
+    }
 
-           const isMobile = window.innerWidth < window.innerHeight;
-
-            var width, height;
-            if (isMobile) {
-                width = 480;
-                height = 640;
-            } else {
-                width = 640;
-                height = 480;
-            }
-
-  // Set canvas size to video size
+    // Set canvas size to video size
     canvas.width = video.width = width;
     canvas.height = video.height = height;
 
@@ -47,38 +45,38 @@
     // Load the glasses 3D model (glasses.glb)
     const loader = new THREE.GLTFLoader();
     let glasses = null;
-        let glasses1 = new Image();
-        glasses1.src = 'glasses.png';
+    let glasses1 = new Image();
+    glasses1.src = 'glasses.png';
 
     loader.load('glasses.glb', (gltf) => {
-      console.log('load glasses start');
-      glasses = gltf.scene;
-      scene.add(glasses);
+        console.log('load glasses start');
+        glasses = gltf.scene;
+        scene.add(glasses);
       
-      // Adjust the model position and scale based on the eye positions
-      glasses.scale.set(0.5, 0.5, 0.5);  // Example scale for the glasses model
-      glasses.position.set(0, 0, -0.1);   // Adjust the glasses' position in front of the camera
-      console.log('load glasses end');
+        // Adjust the model position and scale based on the eye positions
+        glasses.scale.set(0.5, 0.5, 0.5);  // Example scale for the glasses model
+        glasses.position.set(0, 0, -0.1);   // Adjust the glasses' position in front of the camera
+        console.log('load glasses end');
     });
 
     // Set up video stream (webcam)
     navigator.mediaDevices.getUserMedia({ video: true })
-      .then((stream) => {
+    .then((stream) => {
         video.srcObject = stream;
-       // video.play();
+        //video.play();
 
-       // video.onloadedmetadata = () => {
-          // Start rendering loop after video is ready
-       //   animate();
-       // };
-      })
-      .catch((err) => {
+        //video.onloadedmetadata = () => {
+        //Start rendering loop after video is ready
+        //animate();
+        //};
+    })
+    .catch((err) => {
         console.error('Error accessing webcam:', err);
-      });
+    });
 
-          // 加載 face-api.js 模型
-        async function loadFaceApi() {
-            try {
+    // 加載 face-api.js 模型
+    async function loadFaceApi() {
+        try {
             console.log('loadFaceApi start');
             console.log('loadFaceApi ssdMobilenetv1 start');
             await faceapi.nets.ssdMobilenetv1.load('/');
@@ -88,10 +86,10 @@
             await faceapi.nets.faceRecognitionNet.load('/');
             console.log('loadFaceApi end');
             detectFace();
-            } catch (error) {
+        } catch (error) {
              console.error('加載模型時發生錯誤:', error);
-                }
         }
+    }
 
 
     // Eye position and scale (example values, these should come from face detection)
@@ -101,81 +99,83 @@
     let eyeHeight = 80; // Height of the glasses
 
     // Function to render the video and overlay 3D glasses as 2D
-     async function detectFace() {
-            const detections = await faceapi.detectAllFaces(video).withFaceLandmarks();
-            if (detections.length > 0) {
-                const landmarks = detections[0].landmarks;
-                const leftEye = landmarks.getLeftEye();
-                const rightEye = landmarks.getRightEye();
-              eyeX = (leftEye[0].x + rightEye[3].x) / 2;
-              eyeY = (leftEye[3].y + rightEye[3].y) / 2;
-              eyeWidth = (eyeX - leftEye[0].x) * 2 * 1.6;
-              eyeHeight = (eyeX - leftEye[0].x) * 2 * 1.6 / 220 * 80 ;
+    async function detectFace() {
+        const detections = await faceapi.detectAllFaces(video).withFaceLandmarks();
+        if (detections.length > 0) {
+            console.log('detections start');
+            const landmarks = detections[0].landmarks;
+            const leftEye = landmarks.getLeftEye();
+            const rightEye = landmarks.getRightEye();
+            eyeX = (leftEye[0].x + rightEye[3].x) / 2;
+            eyeY = (leftEye[3].y + rightEye[3].y) / 2;
+            eyeWidth = (eyeX - leftEye[0].x) * 2 * 1.6;
+            eyeHeight = (eyeX - leftEye[0].x) * 2 * 1.6 / 220 * 80 ;
 
-             // Draw the current video frame on the canvas
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            // Draw the current video frame on the canvas
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-      //ctx.fillStyle = 'blue';
-      //ctx.fillRect(eyeX - eyeWidth / 2, eyeY - eyeHeight / 2, eyeWidth, eyeHeight);  // Draw blue background where the glasses will go
+            //ctx.fillStyle = 'blue';
+            //ctx.fillRect(eyeX - eyeWidth / 2, eyeY - eyeHeight / 2, eyeWidth, eyeHeight);  // Draw blue background where the glasses will go
 
-      // If the glasses model is loaded, render it as a 2D texture
-      if (glasses) {
-        // Render the glasses model to the render target (off-screen)
-        renderer.setRenderTarget(renderTarget);
-        renderer.render(scene, camera);
+            // If the glasses model is loaded, render it as a 2D texture
+            if (glasses) {
+                console.log('glasses start');
+                // Render the glasses model to the render target (off-screen)
+                renderer.setRenderTarget(renderTarget);
+                renderer.render(scene, camera);
 
-        // Reset render target to the default framebuffer (for normal canvas rendering)
-        renderer.setRenderTarget(null);
+                // Reset render target to the default framebuffer (for normal canvas rendering)
+                renderer.setRenderTarget(null);
 
-        // Read pixels from the render target
-        const pixels = new Uint8Array(4 * renderTarget.width * renderTarget.height);
-        renderer.readRenderTargetPixels(renderTarget, 0, 0, renderTarget.width, renderTarget.height, pixels);
+                // Read pixels from the render target
+                const pixels = new Uint8Array(4 * renderTarget.width * renderTarget.height);
+                renderer.readRenderTargetPixels(renderTarget, 0, 0, renderTarget.width, renderTarget.height, pixels);
 
-        // Create a new image to hold the pixel data
-        const imageData = ctx.createImageData(renderTarget.width, renderTarget.height);
-        for (let i = 0; i < pixels.length; i += 4) {
-          imageData.data[i] = pixels[i];     // Red
-          imageData.data[i + 1] = pixels[i+1]; // Green
-          imageData.data[i + 2] = pixels[i+2]; // Blue
-          imageData.data[i + 3] = pixels[i+3]; // Alpha
-        }
+                // Create a new image to hold the pixel data
+                const imageData = ctx.createImageData(renderTarget.width, renderTarget.height);
+                for (let i = 0; i < pixels.length; i += 4) {
+                    imageData.data[i] = pixels[i];     // Red
+                    imageData.data[i + 1] = pixels[i+1]; // Green
+                    imageData.data[i + 2] = pixels[i+2]; // Blue
+                    imageData.data[i + 3] = pixels[i+3]; // Alpha
+                }
 
-        // Put the image data on the canvas
-        //console.log('模型1:',eyeX - eyeWidth / 2);
-        //console.log('模型2-0:',leftEye[0].x + '||' + leftEye[0].y);
-        //console.log('模型2-1:',leftEye[1].x + '||' + leftEye[1].y);
-        //console.log('模型2-2:',leftEye[2].x + '||' + leftEye[2].y);
-        //console.log('模型2-3:',leftEye[3].x + '||' + leftEye[3].y);
-        //console.log('模型2-4:',leftEye[4].x + '||' + leftEye[4].y);
-        //console.log('模型2-5:',leftEye[5].x + '||' + leftEye[5].y);
-        //console.log('模型3-0:',rightEye[0].x + '||' + rightEye[0].y);
-        //console.log('模型3-1:',rightEye[1].x + '||' + rightEye[1].y);
-        //console.log('模型3-2:',rightEye[2].x + '||' + rightEye[2].y);
-        //console.log('模型3-3:',rightEye[3].x + '||' + rightEye[3].y);
-        //console.log('模型3-4:',rightEye[4].x + '||' + rightEye[4].y);
-        //console.log('模型3-5:',rightEye[5].x + '||' + rightEye[5].y);
-        //ctx.putImageData(imageData, eyeX - eyeWidth / 2, eyeY - eyeHeight / 2);
-        ctx.drawImage(glasses1, eyeX - eyeWidth / 2, eyeY - eyeHeight / 2, eyeWidth, eyeHeight);
+                // Put the image data on the canvas
+                //console.log('模型1:',eyeX - eyeWidth / 2);
+                //console.log('模型2-0:',leftEye[0].x + '||' + leftEye[0].y);
+                //console.log('模型2-1:',leftEye[1].x + '||' + leftEye[1].y);
+                //console.log('模型2-2:',leftEye[2].x + '||' + leftEye[2].y);
+                //console.log('模型2-3:',leftEye[3].x + '||' + leftEye[3].y);
+                //console.log('模型2-4:',leftEye[4].x + '||' + leftEye[4].y);
+                //console.log('模型2-5:',leftEye[5].x + '||' + leftEye[5].y);
+                //console.log('模型3-0:',rightEye[0].x + '||' + rightEye[0].y);
+                //console.log('模型3-1:',rightEye[1].x + '||' + rightEye[1].y);
+                //console.log('模型3-2:',rightEye[2].x + '||' + rightEye[2].y);
+                //console.log('模型3-3:',rightEye[3].x + '||' + rightEye[3].y);
+                //console.log('模型3-4:',rightEye[4].x + '||' + rightEye[4].y);
+                //console.log('模型3-5:',rightEye[5].x + '||' + rightEye[5].y);
+                ctx.putImageData(imageData, eyeX - eyeWidth / 2, eyeY - eyeHeight / 2);
+                ctx.drawImage(glasses1, eyeX - eyeWidth / 2, eyeY - eyeHeight / 2, eyeWidth, eyeHeight);
         
 
-        // Optional: Draw a bounding box to show glasses' position
-        ctx.strokeStyle = 'red';
-        ctx.lineWidth = 2;
-        //console.log('Rect1:',eyeX - eyeWidth / 2);
-        //console.log('Rect2:',eyeY - eyeHeight / 2);
-        ctx.strokeRect(eyeX - eyeWidth / 2, eyeY - eyeHeight / 2, eyeWidth, eyeHeight);
-      }
-      }
-      requestAnimationFrame(detectFace);
-     }
+                // Optional: Draw a bounding box to show glasses' position
+                //ctx.strokeStyle = 'red';
+                //ctx.lineWidth = 2;
+                //console.log('Rect1:',eyeX - eyeWidth / 2);
+                //console.log('Rect2:',eyeY - eyeHeight / 2);
+                //ctx.strokeRect(eyeX - eyeWidth / 2, eyeY - eyeHeight / 2, eyeWidth, eyeHeight);
+                    console.log('glasses end');
+            }
+            console.log('glasses end');
+        }
+        requestAnimationFrame(detectFace);
+    }
     loadFaceApi();
     function animate() {
-      requestAnimationFrame(animate);
-      renderer.render(scene, camera);
-
+        requestAnimationFrame(animate);
+        renderer.render(scene, camera);
     }
-  animate();
-  
-  </script>
+    animate();
+</script>
 </body>
 </html>
