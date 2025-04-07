@@ -134,13 +134,13 @@
                 renderer.readRenderTargetPixels(renderTarget, 0, 0, renderTarget.width, renderTarget.height, pixels);
 
                 // Create a new image to hold the pixel data
-                const imageData = ctx.createImageData(renderTarget.width, renderTarget.height);
-                for (let i = 0; i < pixels.length; i += 4) {
-                    imageData.data[i] = pixels[i];     // Red
-                    imageData.data[i + 1] = pixels[i+1]; // Green
-                    imageData.data[i + 2] = pixels[i+2]; // Blue
-                    imageData.data[i + 3] = pixels[i+3]; // Alpha
-                }
+                //const imageData = ctx.createImageData(renderTarget.width, renderTarget.height);
+                //for (let i = 0; i < pixels.length; i += 4) {
+                //    imageData.data[i] = pixels[i];     // Red
+                //    imageData.data[i + 1] = pixels[i+1]; // Green
+                //    imageData.data[i + 2] = pixels[i+2]; // Blue
+                //    imageData.data[i + 3] = pixels[i+3]; // Alpha
+                //}
 
                 // Put the image data on the canvas
                 //console.log('模型1:',eyeX - eyeWidth / 2);
@@ -156,8 +156,8 @@
                 //console.log('模型3-3:',rightEye[3].x + '||' + rightEye[3].y);
                 //console.log('模型3-4:',rightEye[4].x + '||' + rightEye[4].y);
                 //console.log('模型3-5:',rightEye[5].x + '||' + rightEye[5].y);
-                ctx.putImageData(imageData, eyeX - eyeWidth / 2, eyeY - eyeHeight / 2);
-                //ctx.drawImage(glasses1, eyeX - eyeWidth / 2, eyeY - eyeHeight / 2, eyeWidth, eyeHeight);
+                //ctx.putImageData(imageData, eyeX - eyeWidth / 2, eyeY - eyeHeight / 2);
+                ctx.drawImage(glasses1, eyeX - eyeWidth / 2, eyeY - eyeHeight / 2, eyeWidth, eyeHeight);
         
 
                 // Optional: Draw a bounding box to show glasses' position
