@@ -22,16 +22,27 @@
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d', { willReadFrequently: true });
 
-    // Set canvas size to video size
-    canvas.width = video.width;
-    canvas.height = video.height;
+           const isMobile = window.innerWidth < window.innerHeight;
+
+            var width, height;
+            if (isMobile) {
+                width = 480;
+                height = 640;
+            } else {
+                width = 640;
+                height = 480;
+            }
+
+  // Set canvas size to video size
+    canvas.width = video.width = width;
+    canvas.height = video.height = height;
 
     // Initialize Three.js scene, camera, and renderer
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, canvas.width / canvas.height, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer({ canvas: document.createElement('canvas') });
     renderer.setSize(640, 480); // Match the video size
-    const renderTarget = new THREE.WebGLRenderTarget(640, 480); // Render to this target
+    const renderTarget = new THREE.WebGLRenderTarget(width, height); // Render to this target
 
     // Load the glasses 3D model (glasses.glb)
     const loader = new THREE.GLTFLoader();
