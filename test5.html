@@ -106,8 +106,8 @@
                 const rightEye = landmarks.getRightEye();
               eyeX = (leftEye[0].x + rightEye[3].x) / 2;
               eyeY = (leftEye[3].y + rightEye[3].y) / 2;
-              eyeWidth = (eyeX - leftEye[0].x) * 2 * 1.8;
-              eyeHeight = (eyeX - leftEye[0].x) * 2 * 1.8 / 220 * 80 ;
+              eyeWidth = (eyeX - leftEye[0].x) * 2 * 1.6;
+              eyeHeight = (eyeX - leftEye[0].x) * 2 * 1.6 / 220 * 80 ;
 
              // Draw the current video frame on the canvas
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
