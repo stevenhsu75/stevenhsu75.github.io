@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lens Studio AR Glasses Effect</title>
+    <script src="https://cdn.jsdelivr.net/npm/@lensstudio/sdk/web.js"></script> <!-- 引入Lens Studio SDK -->
+</head>
+<body>
+    <h1>Lens Studio Glasses AR Effect</h1>
+    
+    <!-- 顯示 WebCam -->
+    <video id="webcam" autoplay="true" width="100%" height="auto"></video>
+
+    <script>
+        // 開啟 WebCam
+        async function startWebCam() {
+            const videoElement = document.getElementById('webcam');
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                videoElement.srcObject = stream;
+            } catch (err) {
+                console.error('Error accessing webcam: ', err);
+            }
+        }
+
+        // 初始化 Lens Studio WebGL 內容
+        function initializeLensEffect() {
+            // 這是 Lens Studio 輸出的 WebGL 或 JavaScript API 代碼，根據實際情況進行設置
+            // 假設你已經從 Lens Studio 得到適合在網頁中運行的內容，這裡需要初始化相關效果
+            const lensEffect = new LensStudioLens();
+            lensEffect.load("https://lens.snap.com/experience/215103a5-8032-4f14-8928-58e5509a0561");
+
+            lensEffect.attachToWebCam(document.getElementById('webcam'));
+        }
+
+        // 啟動 WebCam 並初始化 Lens Studio 效果
+        async function start() {
+            await startWebCam();
+            initializeLensEffect();
+        }
+
+        start();
+    </script>
+</body>
+</html>
