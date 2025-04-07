@@ -7,7 +7,7 @@
     <style>
         body { margin: 0; overflow: hidden; }
         
-        video { position: absolute; top: 0; left: 0; width: 10%; height: 10%; object-fit: cover; z-index: -1; }
+        video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: -1; }
                 /* 将#position定位到左上角 */
         #position {
             position: absolute;
@@ -26,8 +26,6 @@
             margin-right: 10px;
         }
 
-    canvas { position: absolute; top: 0; left: 0; }
-  
     </style>
 </head>
 <body>
@@ -35,22 +33,20 @@
     <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/loaders/GLTFLoader.js"></script>
     <script src="face-api.js"></script>
-   <video id="video" width="640" height="480" autoplay muted playsinline></video>
-  <canvas id="canvas"></canvas>
-       <div id="position"> 
+        <div id="position"> 
         <div>
-            <label for="xx">xx:</label> 
+            <label for="x">x:</label> 
             <input  value="1" id="xx" type="text" > 
-            <label for="yy">yy:</label> 
+            <label for="y">y:</label> 
             <input  value="1" id="yy" type="text" > 
-            <label for="zz">zz:</label> 
-            <input  value="1" id="zz" type="text" > 
-            <label for="xxx1">xxx1:</label> 
-            <input  value="1" id="xxx1" type="text" > 
-            <label for="xxx2">xxx2:</label> 
-            <input  value="1" id="xxx2" type="text" > 
-            <label for="xxx3">xxx3:</label> 
-            <input  value="1" id="xxx3" type="text" > 
+            <label for="z">z:</label> 
+            <input  value="0" id="zz" type="text" > 
+            <label for="z">xxx1:</label> 
+            <input  value="0" id="xxx1" type="text" > 
+            <label for="z">xxx2:</label> 
+            <input  value="0" id="xxx2" type="text" > 
+            <label for="z">xxx3:</label> 
+            <input  value="0" id="xxx3" type="text" > 
         </div>
          
     </div>
@@ -58,6 +54,7 @@
       
     <script>
         // 設置 Three.js
+        var scene = new THREE.Scene();
         
            const isMobile = window.innerWidth < window.innerHeight;
 
@@ -69,24 +66,9 @@
                 width = 640;
                 height = 480;
             }
-        
-    const video = document.getElementById('video');
-    const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d', { willReadFrequently: true });
 
-    // Set canvas size to video size
-    canvas.width = width;
-    canvas.height = height;
-
-
-        var scene = new THREE.Scene();
         var camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
-       // var renderer = new THREE.WebGLRenderer();
-
-        var renderer = new THREE.WebGLRenderer({ canvas: document.createElement('canvas') });
-        renderer.setSize(width, height); // Match the video size
-        const renderTarget = new THREE.WebGLRenderTarget(width, height); // Render to this target
-        
+        var renderer = new THREE.WebGLRenderer();
         //renderer.setSize(window.innerWidth, window.innerHeight);
             renderer.setSize(width, height);
         //alert(width+'==='+height);
@@ -102,26 +84,15 @@
         var loader = new THREE.GLTFLoader();
         var glassesModel;
         loader.load('glasses.glb', function (gltf) {
-            console.log('loader.load glasses');
             glassesModel = gltf.scene;
             glassesModel.scale.set(2, 2, 2);  // 調整模型大小
             scene.add(glassesModel);
-
-    glassesModel.updateWorldMatrix(true, true);
-    // 獲取模型的長寬高
-    var box = new THREE.Box3().setFromObject(glassesModel);
-    var size = new THREE.Vector3();
-    box.getSize(size);
-    console.log('模型長度:', size.x);
-    console.log('模型寬度:', size.y);
-    console.log('模型高度:', size.z);
         });
 
-console.log('加載WebCam start');
         camera.position.set(0, 1, 5); // 相機稍微遠一些來觀看
 
         // 加載 WebCam 視頻
-       // var video = document.createElement('video');
+        var video = document.createElement('video');
         video.autoplay = true;
         video.loop = true;
         video.muted = true; // 禁用回音
@@ -129,9 +100,9 @@ console.log('加載WebCam start');
         //video.height = window.innerHeight;
             video.width = width;
             video.height = height;
+
         document.body.appendChild(video);
 
-console.log('WebCam 視頻流 start');
         // 取得 WebCam 視頻流
         navigator.mediaDevices.getUserMedia({ video: true })
             .then(function (stream) {
@@ -140,7 +111,7 @@ console.log('WebCam 視頻流 start');
             .catch(function (err) {
                 console.error('WebCam 錯誤: ' + err);
             });
-console.log('創建 WebCam start');
+
         // 創建 WebCam 視頻材質並將其應用於 3D 平面
         var videoTexture = new THREE.VideoTexture(video);
         var videoMaterial = new THREE.MeshBasicMaterial({ map: videoTexture });
@@ -155,22 +126,12 @@ console.log('創建 WebCam start');
 
         // 加載 face-api.js 模型
         async function loadFaceApi() {
-            try {
-            console.log('loadFaceApi ssdMobilenetv1 start');
             await faceapi.nets.ssdMobilenetv1.load('/');
-            console.log('loadFaceApi faceLandmark68Net start');
             await faceapi.nets.faceLandmark68Net.load('/');
-            console.log('loadFaceApi faceRecognitionNet start');
             await faceapi.nets.faceRecognitionNet.load('/');
-            console.log('loadFaceApi end');
             detectFace();
-            } catch (error) {
-             console.error('加載模型時發生錯誤:', error);
-                }
         }
-var xx;
-        var yy;
-        
+
         // 偵測面部
         async function detectFace() {
             const detections = await faceapi.detectAllFaces(video).withFaceLandmarks();
@@ -182,32 +143,20 @@ var xx;
                 // 找到兩個眼睛的中點，將虛擬眼鏡放在該位置
                 const eyeCenterX = (leftEye[3].x + rightEye[3].x) / 2;
                 const eyeCenterY = (leftEye[3].y + rightEye[3].y) / 2;
-
-                const eyeDistance = Math.sqrt(
-                    Math.pow(rightEye[3].x - leftEye[3].x, 2) + 
-                    Math.pow(rightEye[3].y - leftEye[3].y, 2)
-                );
-                const scale = Math.min(eyeDistance / 50, 1.5);  // 你可以調整這個係數來達到理想的大小
-
-        xx = eyeCenterX;
-        yy =eyeCenterY;
-       //var zz = parseFloat(document.getElementById('zz').value);
-               // console.log('xxx1 start');
-//document.getElementById('xxx1').value= width ;
-                
-                
-//document.getElementById('xxx2').value=eyeCenterX / parseFloat(width) * 2 - 1 ;
-//var xxx3Value=(eyeCenterY-( parseFloat(document.getElementById('xxx1').value)/ 2) ) / 100;
-//document.getElementById('xxx3').value=scale;
-   //             var scale1=parseFloat(document.getElementById('xxx3').value);
+       var xx = parseFloat(document.getElementById('xx').value);
+       var yy =parseFloat(document.getElementById('yy').value);
+       var zz = parseFloat(document.getElementById('zz').value);
+                //console.log('xxx1 start');
+document.getElementById('xxx1').value=height ;
+                //console.log('xxx2 start');
+document.getElementById('xxx2').value=eyeCenterY ;
+var xxx3Value=(eyeCenterY-( parseFloat(document.getElementById('xxx1').value)/ 2) ) / 100;
+document.getElementById('xxx3').value=xxx3Value;
 
                 // 將眼睛中心的位置映射到 3D 空間
                 if (glassesModel) {
-                    //console.log('glassesModel start');
                     //glassesModel.position.set(eyeCenterX / window.innerWidth * 2 - 1, eyeCenterY / window.innerHeight * -2 + 1, 0);
-                  //  glassesModel.position.set(xx, yy, zz);
-                    //console.log('glassesModel end');
-                //    glassesModel.scale.set(scale1, scale1, scale1);  // 調整模型大小
+                    glassesModel.position.set(xx, yy, zz);
                 }
             }
 
@@ -219,30 +168,9 @@ var xx;
 
         // 渲染動畫
         function animate() {
-            
-        //    requestAnimationFrame(animate);
-            //renderer.render(scene, camera);
-                  // Draw the current video frame on the canvas
-      ctx.drawImage(video, 0, 0, width, height);
-
-      // If the glasses model is loaded, render it as a 2D texture
-if (glassesModel) {
-        // Render the glasses model to the render target (off-screen)
-        renderer.setRenderTarget(renderTarget);
-        renderer.render(scene, camera);
-
-        // Reset render target to the default framebuffer (for normal canvas rendering)
-        renderer.setRenderTarget(null);
-
-        // Get the texture from the render target
-        const texture = renderTarget.texture;
-
-        // Position and scale the glasses (the 2D rendered texture) based on eye positions
-        ctx.drawImage(texture.image, xx, yy, 150, 150);
-
+            requestAnimationFrame(animate);
+            renderer.render(scene, camera);
         }
-        }
-            
         animate();
     </script>
 </body>
