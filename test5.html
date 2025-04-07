@@ -51,12 +51,14 @@
         glasses1.src = 'glasses.png';
 
     loader.load('glasses.glb', (gltf) => {
+      console.log('load glasses start');
       glasses = gltf.scene;
       scene.add(glasses);
       
       // Adjust the model position and scale based on the eye positions
       glasses.scale.set(0.5, 0.5, 0.5);  // Example scale for the glasses model
       glasses.position.set(0, 0, -0.1);   // Adjust the glasses' position in front of the camera
+      console.log('load glasses end');
     });
 
     // Set up video stream (webcam)
@@ -77,6 +79,7 @@
           // 加載 face-api.js 模型
         async function loadFaceApi() {
             try {
+            console.log('loadFaceApi start');
             console.log('loadFaceApi ssdMobilenetv1 start');
             await faceapi.nets.ssdMobilenetv1.load('/');
             console.log('loadFaceApi faceLandmark68Net start');
@@ -162,10 +165,10 @@
         //console.log('Rect2:',eyeY - eyeHeight / 2);
         ctx.strokeRect(eyeX - eyeWidth / 2, eyeY - eyeHeight / 2, eyeWidth, eyeHeight);
       }
-              }
-requestAnimationFrame(detectFace);
+      }
+      requestAnimationFrame(detectFace);
      }
-  loadFaceApi();
+    loadFaceApi();
     function animate() {
       requestAnimationFrame(animate);
       renderer.render(scene, camera);
