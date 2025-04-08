@@ -36,7 +36,7 @@
 
         // 偵測人臉並繪製眼鏡
         async function detectAndDraw() {
-            console.log('detectAndDraw start');
+            //console.log('detectAndDraw start');
             const detections = await faceapi.detectAllFaces(video).withFaceLandmarks();
             if (detections.length > 0) {
                 console.log('detections start');
@@ -70,17 +70,23 @@
             }
 
             // 不斷重繪
-            requestAnimationFrame(detectAndDraw);
+            //requestAnimationFrame(detectAndDraw);
             console.log('detectAndDraw end');
         }
 
         // 啟動程序
         async function start() {
+            console.log('setupVideo start');
             await setupVideo();
+            console.log('setupVideo end');
+            console.log('setupFaceApi start');
             await setupFaceApi();
+            console.log('setupFaceApi end');
+            console.log('detectAndDraw start');
             video.onloadedmetadata = () => {
                 detectAndDraw();  // 開始偵測並繪製眼鏡
             };
+            console.log('detectAndDraw end');
         }
 
         start();
