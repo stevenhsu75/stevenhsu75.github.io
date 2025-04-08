@@ -86,14 +86,14 @@
             }
         }
 
-    let glassesWidth = 220; // Width of the glasses
-    let glassesHeight = 80; // Height of the glasses
 
         // 偵測人臉並繪製眼鏡
         async function detectAndDraw() {
             //setupVideo();
             //console.log('detectAndDraw start');
             console.log('detectAndDraw start...');
+    let glassesWidth = 220; // Width of the glasses
+    let glassesHeight = 80; // Height of the glasses
             const detections = await faceapi.detectAllFaces(video).withFaceLandmarks();
             if (detections.length > 0) {
                 console.log('detections start');
