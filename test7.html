@@ -77,9 +77,9 @@
             console.log('loadFaceApi faceRecognitionNet start');
             await faceapi.nets.faceRecognitionNet.load('/');
             console.log('loadFaceApi end');
-            console.log('detectAndDraw start');
+            //console.log('detectAndDraw start');
             detectAndDraw();  // 開始偵測並繪製眼鏡
-            console.log('detectAndDraw end');
+            //console.log('detectAndDraw end');
             
             } catch (error) {
              console.error('加載模型時發生錯誤:', error);
@@ -92,13 +92,13 @@
             //setupVideo();
             //console.log('detectAndDraw start');
             console.log('detectAndDraw start...');
-    let glassesWidth = 220; // Width of the glasses
-    let glassesHeight = 80; // Height of the glasses
             const detections = await faceapi.detectAllFaces(video).withFaceLandmarks();
             if (detections.length > 0) {
                 console.log('detections start');
                 const landmarks = detections[0].landmarks;
 
+    let glassesWidth = 220; // Width of the glasses
+    let glassesHeight = 80; // Height of the glasses
             const leftEye = landmarks.getLeftEye();
             const rightEye = landmarks.getRightEye();
                 console.log('rightEye:',rightEye[0].x + '||' + rightEye[0].y);
@@ -134,10 +134,10 @@
                 ctx.restore();
                 console.log('detections end');
             }
-
+console.log('requestAnimationFrame...');
             // 不斷重繪
             requestAnimationFrame(detectAndDraw);
-            //console.log('detectAndDraw end');
+            console.log('detectAndDraw end...');
         }
 
             console.log('setupFaceApi start');
