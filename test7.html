@@ -29,9 +29,22 @@
 
         // 初始化 face-api.js 模型
         async function setupFaceApi() {
+            try {
+            console.log('loadFaceApi start');
+            console.log('loadFaceApi ssdMobilenetv1 start');
             await faceapi.nets.ssdMobilenetv1.load('/');
+            console.log('loadFaceApi faceLandmark68Net start');
             await faceapi.nets.faceLandmark68Net.load('/');
+            console.log('loadFaceApi faceRecognitionNet start');
             await faceapi.nets.faceRecognitionNet.load('/');
+            console.log('loadFaceApi end');
+            console.log('detectAndDraw start');
+            detectAndDraw();  // 開始偵測並繪製眼鏡
+            console.log('detectAndDraw end');
+            
+            } catch (error) {
+             console.error('加載模型時發生錯誤:', error);
+            }
         }
 
         // 偵測人臉並繪製眼鏡
@@ -70,23 +83,19 @@
             }
 
             // 不斷重繪
-            //requestAnimationFrame(detectAndDraw);
-            console.log('detectAndDraw end');
+            requestAnimationFrame(detectAndDraw);
+            //console.log('detectAndDraw end');
         }
+
+            console.log('setupFaceApi start');
+            await setupFaceApi();
+            console.log('setupFaceApi end');
 
         // 啟動程序
         async function start() {
             console.log('setupVideo start');
             await setupVideo();
             console.log('setupVideo end');
-            console.log('setupFaceApi start');
-            await setupFaceApi();
-            console.log('setupFaceApi end');
-            console.log('detectAndDraw start');
-            video.onloadedmetadata = () => {
-                detectAndDraw();  // 開始偵測並繪製眼鏡
-            };
-            console.log('detectAndDraw end');
         }
 
         start();
