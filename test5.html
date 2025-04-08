@@ -96,8 +96,8 @@
     // Eye position and scale (example values, these should come from face detection)
     let eyeX = 200;  // Example x position of the eyes
     let eyeY = 150;  // Example y position of the eyes
-    let eyeWidth = 220; // Width of the glasses
-    let eyeHeight = 80; // Height of the glasses
+    let glassesWidth = 220; // Width of the glasses
+    let glassesHeight = 80; // Height of the glasses
 
     // Function to render the video and overlay 3D glasses as 2D
     async function detectFace() {
@@ -108,10 +108,13 @@
             const landmarks = detections[0].landmarks;
             const leftEye = landmarks.getLeftEye();
             const rightEye = landmarks.getRightEye();
+            const deltaX = (rightEye[3].x - rightEye[0].x) - (leftEye[3].x - leftEye[0].x);
+            const deltaY = (rightEye[3].y - rightEye[0].y) - (leftEye[3].y - leftEye[0].y);
+            const angle = Math.atan2(deltaY, deltaX);  // 計算旋轉角度
             eyeX = (leftEye[0].x + rightEye[3].x) / 2;
-            eyeY = (leftEye[3].y + rightEye[3].y) / 2;
-            eyeWidth = (eyeX - leftEye[0].x) * 2 * 1.6;
-            eyeHeight = (eyeX - leftEye[0].x) * 2 * 1.6 / 220 * 80 ;
+            eyeY = (leftEye[0].y + rightEye[3].y) / 2;
+            glassesWidth = (eyeX - leftEye[0].x) * 2 * 1.6;
+            glassesHeight = (eyeX - leftEye[0].x) * 2 * 1.6 / 220 * 80 ;
 
             // Draw the current video frame on the canvas
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
@@ -128,11 +131,9 @@
 
                 // Reset render target to the default framebuffer (for normal canvas rendering)
                 renderer.setRenderTarget(null);
-
                 // Read pixels from the render target
                 const pixels = new Uint8Array(4 * renderTarget.width * renderTarget.height);
                 renderer.readRenderTargetPixels(renderTarget, 0, 0, renderTarget.width, renderTarget.height, pixels);
-
                 // Create a new image to hold the pixel data
                 //const imageData = ctx.createImageData(renderTarget.width, renderTarget.height);
                 //for (let i = 0; i < pixels.length; i += 4) {
@@ -156,8 +157,17 @@
                 //console.log('模型3-3:',rightEye[3].x + '||' + rightEye[3].y);
                 //console.log('模型3-4:',rightEye[4].x + '||' + rightEye[4].y);
                 //console.log('模型3-5:',rightEye[5].x + '||' + rightEye[5].y);
-                //ctx.putImageData(imageData, eyeX - eyeWidth / 2, eyeY - eyeHeight / 2);
-                ctx.drawImage(glasses1, eyeX - eyeWidth / 2, eyeY - eyeHeight / 2, eyeWidth, eyeHeight);
+                //ctx.putImageData(imageData, eyeX - glassesWidth / 2, eyeY - glassesHeight / 2);
+
+                // 清除畫布並繪製眼鏡
+                //ctx.clearRect(0, 0, canvas.width, canvas.height);
+                //ctx.save();
+                ctx.translate(eyeX, eyeY);  // 移動眼鏡到中心
+                ctx.rotate(angle);  // 旋轉眼鏡
+                //ctx.drawImage(glasses, -glassesWidth / 2, -glassesHeight / 2, glassesWidth, glassesHeight);  // 繪製眼鏡
+                ctx.drawImage(glasses1, eyeX - glassesWidth / 2, eyeY - glassesHeight / 2, glassesWidth, glassesHeight);
+                ctx.restore();
+              
         
 
                 // Optional: Draw a bounding box to show glasses' position
