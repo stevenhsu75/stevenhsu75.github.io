@@ -93,6 +93,7 @@
         async function detectAndDraw() {
             //setupVideo();
             //console.log('detectAndDraw start');
+            console.log('detectAndDraw start...');
             const detections = await faceapi.detectAllFaces(video).withFaceLandmarks();
             if (detections.length > 0) {
                 console.log('detections start');
@@ -100,7 +101,8 @@
 
             const leftEye = landmarks.getLeftEye();
             const rightEye = landmarks.getRightEye();
-                
+                console.log('rightEye:',rightEye[0].x + '||' + rightEye[0].y);
+                console.log('rightEye:',rightEye[0].x + '||' + rightEye[0].y);
                 // 獲取眼睛的中心點
                 //const leftEyeCenter = landmarks.getLeftEye()[3];
                 //const rightEyeCenter = landmarks.getRightEye()[3];
