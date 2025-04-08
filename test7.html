@@ -105,7 +105,7 @@
                 ctx.save();
                 ctx.translate(glassesX + glassesWidth / 2, glassesY + glassesHeight / 2);  // 移動眼鏡到中心
                 ctx.rotate(angle);  // 旋轉眼鏡
-                ctx.drawImage(glasses, glassesX, glassesY, glassesWidth, glassesHeight);  // 繪製眼鏡
+                ctx.drawImage(glasses,  -(glassesX + glassesWidth / 2) ,   -(glassesY + glassesHeight / 2);, glassesWidth, glassesHeight);  // 繪製眼鏡
                 ctx.restore();
                 console.log('detections end');
             }
