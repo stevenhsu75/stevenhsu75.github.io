@@ -5,6 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>頭部傾斜與眼鏡旋轉</title>
     <script src="face-api.js"></script>
+        <style>
+        /* 確保視頻和畫布的層級順序正確 */
+        #video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;  /* 讓視頻在下方 */
+        }
+
+        #canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 2;  /* 讓畫布在上方 */
+            pointer-events: none;  /* 讓畫布不影響視頻的互動 */
+        }
+    </style>
 </head>
 <body>
     <video id="video" width="640" height="480" autoplay muted></video>
