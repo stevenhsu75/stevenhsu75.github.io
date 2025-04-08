@@ -32,11 +32,23 @@
         const video = document.getElementById('video');
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
+        const isMobile = window.innerWidth < window.innerHeight;
+        var width, height;
+    if (isMobile) {
+        width = 480;
+        height = 640;
+    } else {
+        width = 640;
+        height = 480;
+    }
+    // Set canvas size to video size
+    canvas.width = video.width = width;
+    canvas.height = video.height = height;
 
         const glasses = new Image();
         glasses.src = 'glasses.png';  // 請替換為眼鏡圖片的路徑
 
-        const glassesScaleFactor = 1.5;  // 眼鏡的大小比例
+        const glassesScaleFactor = 1.6;  // 眼鏡的大小比例
 
         // 啟動攝像頭
     // Set up video stream (webcam)
@@ -74,6 +86,9 @@
             }
         }
 
+    let glassesWidth = 220; // Width of the glasses
+    let glassesHeight = 80; // Height of the glasses
+
         // 偵測人臉並繪製眼鏡
         async function detectAndDraw() {
             //setupVideo();
@@ -83,27 +98,35 @@
                 console.log('detections start');
                 const landmarks = detections[0].landmarks;
 
+            const leftEye = landmarks.getLeftEye();
+            const rightEye = landmarks.getRightEye();
+                
                 // 獲取眼睛的中心點
-                const leftEyeCenter = landmarks.getLeftEye()[3];
-                const rightEyeCenter = landmarks.getRightEye()[3];
+                //const leftEyeCenter = landmarks.getLeftEye()[3];
+                //const rightEyeCenter = landmarks.getRightEye()[3];
 
                 // 計算眼睛中心點之間的角度
-                const deltaX = rightEyeCenter.x - leftEyeCenter.x;
-                const deltaY = rightEyeCenter.y - leftEyeCenter.y;
+                const deltaX = (rightEye[3].x - rightEye[0].x) - (leftEye[3].x - leftEye[0].x);
+                const deltaY = (rightEye[3].y - rightEye[0].y) - (leftEye[3].y - leftEye[0].y);
                 const angle = Math.atan2(deltaY, deltaX);  // 計算旋轉角度
 
+                let eyeX = (leftEye[0].x + rightEye[3].x) / 2;
+                let eyeY = (leftEye[0].y + rightEye[3].y) / 2;
+                let glassesWidth = (eyeX - leftEye[0].x) * 2 * glassesScaleFactor;
+                let glassesHeight = (eyeX - leftEye[0].x) * 2 * glassesScaleFactor / glassesWidth * glassesHeight ;
+
                 // 計算眼鏡的位置
-                const eyeWidth = Math.abs(leftEyeCenter.x - rightEyeCenter.x);
-                const eyeHeight = Math.abs(leftEyeCenter.y - rightEyeCenter.y);
-                const glassesWidth = eyeWidth * glassesScaleFactor;
-                const glassesHeight = eyeHeight * glassesScaleFactor;
-                const glassesX = (leftEyeCenter.x + rightEyeCenter.x) / 2 - glassesWidth / 2;
-                const glassesY = (leftEyeCenter.y + rightEyeCenter.y) / 2 - glassesHeight / 2;
+                //const eyeWidth = Math.abs(leftEyeCenter.x - rightEyeCenter.x);
+                //const eyeHeight = Math.abs(leftEyeCenter.y - rightEyeCenter.y);
+                //const glassesWidth = eyeWidth * glassesScaleFactor;
+                //const glassesHeight = eyeHeight * glassesScaleFactor;
+                //const glassesX = (leftEyeCenter.x + rightEyeCenter.x) / 2 - glassesWidth / 2;
+                //const glassesY = (leftEyeCenter.y + rightEyeCenter.y) / 2 - glassesHeight / 2;
 
                 // 清除畫布並繪製眼鏡
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 ctx.save();
-                ctx.translate(glassesX + glassesWidth / 2, glassesY + glassesHeight / 2);  // 移動眼鏡到中心
+                ctx.translate(eyeX, eyeY);  // 移動眼鏡到中心
                 ctx.rotate(angle);  // 旋轉眼鏡
                 ctx.drawImage(glasses,  -glassesWidth / 2, -glassesHeight / 2, glassesWidth, glassesHeight);  // 繪製眼鏡
                 ctx.restore();
