@@ -4,43 +4,42 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lens Studio AR Glasses Effect</title>
-    <script src="https://cdn.jsdelivr.net/npm/@lensstudio/sdk/web.js"></script> <!-- 引入Lens Studio SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@lensstudio/sdk/web.js"></script> <!-- 載入 Lens Studio SDK -->
 </head>
 <body>
     <h1>Lens Studio Glasses AR Effect</h1>
     
-    <!-- 顯示 WebCam -->
+    <!-- 顯示 WebCam 視頻 -->
     <video id="webcam" autoplay="true" width="100%" height="auto"></video>
 
     <script>
-        // 開啟 WebCam
+        // 開啟 WebCam 函數
         async function startWebCam() {
             const videoElement = document.getElementById('webcam');
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-                videoElement.srcObject = stream;
+                videoElement.srcObject = stream;  // 將 WebCam 資源綁定到視頻元素
             } catch (err) {
-                console.error('Error accessing webcam: ', err);
+                console.error('無法訪問攝像頭：', err);
             }
         }
 
-        // 初始化 Lens Studio WebGL 內容
-        function initializeLensEffect() {
-            // 這是 Lens Studio 輸出的 WebGL 或 JavaScript API 代碼，根據實際情況進行設置
-            // 假設你已經從 Lens Studio 得到適合在網頁中運行的內容，這裡需要初始化相關效果
-            const lensEffect = new LensStudioLens();
-            lensEffect.load("https://lens.snap.com/experience/215103a5-8032-4f14-8928-58e5509a0561");
+        // 初始化 Lens Studio AR 效果
+        function loadLensEffect() {
+            // 假設 Lens Studio SDK 提供的 API 用來顯示 AR 效果
+            const lensEffectURL = "https://lens.snap.com/experience/a96d2f77-f23a-4c28-8327-4afb9af4f6b6"; // 這是 Lens Studio 生成的 AR 效果 URL，替換為你的 URL
 
-            lensEffect.attachToWebCam(document.getElementById('webcam'));
+            // 假設存在一個 API 方法來顯示 AR 效果，根據 SDK 文檔使用正確的方法
+            LensStudio.displayEffect(lensEffectURL);
         }
 
-        // 啟動 WebCam 並初始化 Lens Studio 效果
+        // 啟動 WebCam 並載入 AR 效果
         async function start() {
-            await startWebCam();
-            initializeLensEffect();
+            await startWebCam();  // 啟動 WebCam
+            loadLensEffect();     // 載入 AR 效果
         }
 
-        start();
+        start();  // 呼叫啟動函數
     </script>
 </body>
 </html>
