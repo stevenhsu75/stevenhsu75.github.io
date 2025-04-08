@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>頭部傾斜與眼鏡旋轉</title>
-    <script defer src="face-api.js"></script>
+    <script src="face-api.js"></script>
 </head>
 <body>
     <video id="video" width="640" height="480" autoplay muted></video>
@@ -17,36 +17,53 @@
         const ctx = canvas.getContext('2d');
 
         const glasses = new Image();
-        glasses.src = 'glasses.png';  // 替換為你的眼鏡圖片路徑
+        glasses.src = 'glasses.png';  // 請替換為眼鏡圖片的路徑
 
         const glassesScaleFactor = 1.5;  // 眼鏡的大小比例
 
-        // 這裡我們等到眼鏡圖片加載完成後再開始
-        glasses.onload = async () => {
-            await setupVideo();
-            await setupFaceApi();
-            video.onloadedmetadata = () => {
-                detectAndDraw();  // 開始偵測並繪製眼鏡
-            };
-        };
-
         // 啟動攝像頭
-        async function setupVideo() {
-            const stream = await navigator.mediaDevices.getUserMedia({ video: {} });
-            video.srcObject = stream;
-        }
+    // Set up video stream (webcam)
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then((stream) => {
+        video.srcObject = stream;
+       // video.play();
+
+       // video.onloadedmetadata = () => {
+          // Start rendering loop after video is ready
+       //   animate();
+       // };
+      })
+      .catch((err) => {
+        console.error('Error accessing webcam:', err);
+      });
 
         // 初始化 face-api.js 模型
         async function setupFaceApi() {
+            try {
+            console.log('loadFaceApi start');
+            console.log('loadFaceApi ssdMobilenetv1 start');
             await faceapi.nets.ssdMobilenetv1.load('/');
+            console.log('loadFaceApi faceLandmark68Net start');
             await faceapi.nets.faceLandmark68Net.load('/');
+            console.log('loadFaceApi faceRecognitionNet start');
             await faceapi.nets.faceRecognitionNet.load('/');
+            console.log('loadFaceApi end');
+            console.log('detectAndDraw start');
+            detectAndDraw();  // 開始偵測並繪製眼鏡
+            console.log('detectAndDraw end');
+            
+            } catch (error) {
+             console.error('加載模型時發生錯誤:', error);
+            }
         }
 
         // 偵測人臉並繪製眼鏡
         async function detectAndDraw() {
+            //setupVideo();
+            //console.log('detectAndDraw start');
             const detections = await faceapi.detectAllFaces(video).withFaceLandmarks();
             if (detections.length > 0) {
+                console.log('detections start');
                 const landmarks = detections[0].landmarks;
 
                 // 獲取眼睛的中心點
@@ -71,14 +88,28 @@
                 ctx.save();
                 ctx.translate(glassesX + glassesWidth / 2, glassesY + glassesHeight / 2);  // 移動眼鏡到中心
                 ctx.rotate(angle);  // 旋轉眼鏡
-                ctx.drawImage(glasses, -glassesWidth / 2, -glassesHeight / 2, glassesWidth, glassesHeight);  // 繪製眼鏡
+                ctx.drawImage(glasses, glassesX, glassesY, glassesWidth, glassesHeight);  // 繪製眼鏡
                 ctx.restore();
+                console.log('detections end');
             }
 
             // 不斷重繪
             requestAnimationFrame(detectAndDraw);
+            //console.log('detectAndDraw end');
         }
 
+            console.log('setupFaceApi start');
+            setupFaceApi();
+            console.log('setupFaceApi end');
+
+        // 啟動程序
+        function start() {
+            console.log('setupVideo start');
+             
+            console.log('setupVideo end');
+        }
+
+        //start();
     </script>
 </body>
 </html>
