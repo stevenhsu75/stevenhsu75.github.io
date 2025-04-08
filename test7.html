@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>頭部傾斜與眼鏡旋轉</title>
+    <script defer src="face-api.js"></script>
+</head>
+<body>
+    <video id="video" width="640" height="480" autoplay muted></video>
+    <canvas id="canvas" width="640" height="480"></canvas>
+
+    <script>
+        // 設定基本變數
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        const glasses = new Image();
+        glasses.src = 'glasses.png';  // 請替換為眼鏡圖片的路徑
+
+        const glassesScaleFactor = 1.5;  // 眼鏡的大小比例
+
+        // 啟動攝像頭
+        async function setupVideo() {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: {} });
+            video.srcObject = stream;
+        }
+
+        // 初始化 face-api.js 模型
+        async function setupFaceApi() {
+            await faceapi.nets.ssdMobilenetv1.load('/');
+            await faceapi.nets.faceLandmark68Net.load('/');
+            await faceapi.nets.faceRecognitionNet.load('/');
+        }
+
+        // 偵測人臉並繪製眼鏡
+        async function detectAndDraw() {
+            const detections = await faceapi.detectAllFaces(video).withFaceLandmarks();
+            if (detections.length > 0) {
+                const landmarks = detections[0].landmarks;
+
+                // 獲取眼睛的中心點
+                const leftEyeCenter = landmarks.getLeftEye()[3];
+                const rightEyeCenter = landmarks.getRightEye()[3];
+
+                // 計算眼睛中心點之間的角度
+                const deltaX = rightEyeCenter.x - leftEyeCenter.x;
+                const deltaY = rightEyeCenter.y - leftEyeCenter.y;
+                const angle = Math.atan2(deltaY, deltaX);  // 計算旋轉角度
+
+                // 計算眼鏡的位置
+                const eyeWidth = Math.abs(leftEyeCenter.x - rightEyeCenter.x);
+                const eyeHeight = Math.abs(leftEyeCenter.y - rightEyeCenter.y);
+                const glassesWidth = eyeWidth * glassesScaleFactor;
+                const glassesHeight = eyeHeight * glassesScaleFactor;
+                const glassesX = (leftEyeCenter.x + rightEyeCenter.x) / 2 - glassesWidth / 2;
+                const glassesY = (leftEyeCenter.y + rightEyeCenter.y) / 2 - glassesHeight / 2;
+
+                // 清除畫布並繪製眼鏡
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.save();
+                ctx.translate(glassesX + glassesWidth / 2, glassesY + glassesHeight / 2);  // 移動眼鏡到中心
+                ctx.rotate(angle);  // 旋轉眼鏡
+                ctx.drawImage(glasses, -glassesWidth / 2, -glassesHeight / 2, glassesWidth, glassesHeight);  // 繪製眼鏡
+                ctx.restore();
+            }
+
+            // 不斷重繪
+            requestAnimationFrame(detectAndDraw);
+        }
+
+        // 啟動程序
+        async function start() {
+            await setupVideo();
+            await setupFaceApi();
+            video.onloadedmetadata = () => {
+                detectAndDraw();  // 開始偵測並繪製眼鏡
+            };
+        }
+
+        start();
+    </script>
+</body>
+</html>
