@@ -91,18 +91,16 @@
 
         // 偵測人臉並繪製眼鏡
         async function detectAndDraw() {
-            //setupVideo();
-            //console.log('detectAndDraw start');
-            console.log('detectAndDraw start...');
+            //console.log('detectAndDraw start...');
             const detections = await faceapi.detectAllFaces(video).withFaceLandmarks();
             if (detections.length > 0) {
-                console.log('detections start');
+                //console.log('detections start');
                 const landmarks = detections[0].landmarks;
 
             const leftEye = landmarks.getLeftEye();
             const rightEye = landmarks.getRightEye();
-                console.log('rightEye:',rightEye[0].x + '||' + rightEye[0].y);
-                console.log('rightEye:',rightEye[0].x + '||' + rightEye[0].y);
+                //console.log('rightEye:',rightEye[0].x + '||' + rightEye[0].y);
+                //console.log('rightEye:',rightEye[0].x + '||' + rightEye[0].y);
                 // 獲取眼睛的中心點
                 //const leftEyeCenter = landmarks.getLeftEye()[3];
                 //const rightEyeCenter = landmarks.getRightEye()[3];
@@ -132,12 +130,12 @@
                 ctx.rotate(angle);  // 旋轉眼鏡
                 ctx.drawImage(glasses,  -glassesWidth / 2, -glassesHeight / 2, glassesWidth, glassesHeight);  // 繪製眼鏡
                 ctx.restore();
-                console.log('detections end');
+                //console.log('detections end');
             }
-console.log('requestAnimationFrame...');
+            //console.log('requestAnimationFrame...');
             // 不斷重繪
             requestAnimationFrame(detectAndDraw);
-            console.log('detectAndDraw end...');
+            //console.log('detectAndDraw end...');
         }
 
             console.log('setupFaceApi start');
