@@ -105,15 +105,15 @@
                 //const leftEyeCenter = landmarks.getLeftEye()[3];
                 //const rightEyeCenter = landmarks.getRightEye()[3];
 
-                // 計算眼睛中心點之間的角度
-                const deltaX = (rightEye[3].x - rightEye[0].x) - (leftEye[3].x - leftEye[0].x);
-                const deltaY = (rightEye[3].y - rightEye[0].y) - (leftEye[3].y - leftEye[0].y);
-                const angle = Math.atan2(deltaY, deltaX);  // 計算旋轉角度
-
                 let eyeX = (leftEye[0].x + rightEye[3].x) / 2;
                 let eyeY = (leftEye[0].y + rightEye[3].y) / 2;
                 let glassesWidth = (eyeX - leftEye[0].x) * 2 * glassesScaleFactor;
                 let glassesHeight = (eyeX - leftEye[0].x) * 2 * glassesScaleFactor / glassesWidth * glassesHeight ;
+                // 計算眼睛中心點之間的角度
+                const deltaX = (rightEye[3].x + rightEye[0].x)/2 - (leftEye[3].x + leftEye[0].x)/2;
+                const deltaY = (rightEye[3].y + rightEye[0].y)/2 - (leftEye[3].y + leftEye[0].y)/2;
+                const angle = Math.atan2(deltaY, deltaX);  // 計算旋轉角度
+
 
                 // 計算眼鏡的位置
                 //const eyeWidth = Math.abs(leftEyeCenter.x - rightEyeCenter.x);
