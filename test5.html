@@ -117,7 +117,7 @@
             glassesHeight = (eyeX - leftEye[0].x) * 2 * 1.6 / 220 * 80 ;
 
             // Draw the current video frame on the canvas
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            //ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
             //ctx.fillStyle = 'blue';
             //ctx.fillRect(eyeX - eyeWidth / 2, eyeY - eyeHeight / 2, eyeWidth, eyeHeight);  // Draw blue background where the glasses will go
@@ -160,8 +160,8 @@
                 //ctx.putImageData(imageData, eyeX - glassesWidth / 2, eyeY - glassesHeight / 2);
 
                 // 清除畫布並繪製眼鏡
-                //ctx.clearRect(0, 0, canvas.width, canvas.height);
-                //ctx.save();
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.save();
                 ctx.translate(eyeX, eyeY);  // 移動眼鏡到中心
                 ctx.rotate(angle);  // 旋轉眼鏡
                 //ctx.drawImage(glasses, -glassesWidth / 2, -glassesHeight / 2, glassesWidth, glassesHeight);  // 繪製眼鏡
