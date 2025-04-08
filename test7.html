@@ -22,10 +22,20 @@
         const glassesScaleFactor = 1.5;  // 眼鏡的大小比例
 
         // 啟動攝像頭
-        function setupVideo() {
-            const stream = await navigator.mediaDevices.getUserMedia({ video: {} });
-            video.srcObject = stream;
-        }
+    // Set up video stream (webcam)
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then((stream) => {
+        video.srcObject = stream;
+       // video.play();
+
+       // video.onloadedmetadata = () => {
+          // Start rendering loop after video is ready
+       //   animate();
+       // };
+      })
+      .catch((err) => {
+        console.error('Error accessing webcam:', err);
+      });
 
         // 初始化 face-api.js 模型
         async function setupFaceApi() {
@@ -49,7 +59,7 @@
 
         // 偵測人臉並繪製眼鏡
         async function detectAndDraw() {
-            setupVideo();
+            //setupVideo();
             //console.log('detectAndDraw start');
             const detections = await faceapi.detectAllFaces(video).withFaceLandmarks();
             if (detections.length > 0) {
