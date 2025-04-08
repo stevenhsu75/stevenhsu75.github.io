@@ -22,7 +22,7 @@
         const glassesScaleFactor = 1.5;  // 眼鏡的大小比例
 
         // 啟動攝像頭
-        async function setupVideo() {
+        function setupVideo() {
             const stream = await navigator.mediaDevices.getUserMedia({ video: {} });
             video.srcObject = stream;
         }
@@ -49,6 +49,7 @@
 
         // 偵測人臉並繪製眼鏡
         async function detectAndDraw() {
+            setupVideo();
             //console.log('detectAndDraw start');
             const detections = await faceapi.detectAllFaces(video).withFaceLandmarks();
             if (detections.length > 0) {
@@ -88,17 +89,17 @@
         }
 
             console.log('setupFaceApi start');
-            await setupFaceApi();
+            setupFaceApi();
             console.log('setupFaceApi end');
 
         // 啟動程序
-        async function start() {
+        function start() {
             console.log('setupVideo start');
-            await setupVideo();
+             
             console.log('setupVideo end');
         }
 
-        start();
+        //start();
     </script>
 </body>
 </html>
