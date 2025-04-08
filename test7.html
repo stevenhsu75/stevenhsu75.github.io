@@ -36,8 +36,10 @@
 
         // 偵測人臉並繪製眼鏡
         async function detectAndDraw() {
+            console.log('detectAndDraw start');
             const detections = await faceapi.detectAllFaces(video).withFaceLandmarks();
             if (detections.length > 0) {
+                console.log('detections start');
                 const landmarks = detections[0].landmarks;
 
                 // 獲取眼睛的中心點
@@ -64,10 +66,12 @@
                 ctx.rotate(angle);  // 旋轉眼鏡
                 ctx.drawImage(glasses, -glassesWidth / 2, -glassesHeight / 2, glassesWidth, glassesHeight);  // 繪製眼鏡
                 ctx.restore();
+                console.log('detections end');
             }
 
             // 不斷重繪
             requestAnimationFrame(detectAndDraw);
+            console.log('detectAndDraw end');
         }
 
         // 啟動程序
