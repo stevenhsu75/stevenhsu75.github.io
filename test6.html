@@ -1,45 +1,12 @@
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lens Studio AR Glasses Effect</title>
-    <script src="https://cdn.jsdelivr.net/npm/@lensstudio/sdk/web.js"></script> <!-- 載入 Lens Studio SDK -->
+    <title>網站範例</title>
 </head>
 <body>
-    <h1>Lens Studio Glasses AR Effect</h1>
-    
-    <!-- 顯示 WebCam 視頻 -->
-    <video id="webcam" autoplay="true" width="100%" height="auto"></video>
-
-    <script>
-        // 開啟 WebCam 函數
-        async function startWebCam() {
-            const videoElement = document.getElementById('webcam');
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-                videoElement.srcObject = stream;  // 將 WebCam 資源綁定到視頻元素
-            } catch (err) {
-                console.error('無法訪問攝像頭：', err);
-            }
-        }
-
-        // 初始化 Lens Studio AR 效果
-        function loadLensEffect() {
-            // 假設 Lens Studio SDK 提供的 API 用來顯示 AR 效果
-            const lensEffectURL = "https://lens.snap.com/experience/a96d2f77-f23a-4c28-8327-4afb9af4f6b6"; // 這是 Lens Studio 生成的 AR 效果 URL，替換為你的 URL
-
-            // 假設存在一個 API 方法來顯示 AR 效果，根據 SDK 文檔使用正確的方法
-            LensStudio.displayEffect(lensEffectURL);
-        }
-
-        // 啟動 WebCam 並載入 AR 效果
-        async function start() {
-            await startWebCam();  // 啟動 WebCam
-            loadLensEffect();     // 載入 AR 效果
-        }
-
-        start();  // 呼叫啟動函數
-    </script>
+    <iframe src="https://lens.snap.com/experience/a96d2f77-f23a-4c28-8327-4afb9af4f6b6" width="800" height="600" title="Example Site"></iframe>
 </body>
 </html>
