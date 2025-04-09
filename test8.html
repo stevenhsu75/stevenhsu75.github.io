@@ -1,64 +1,137 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title>AR 眼鏡模型</title>
-  
-   
-
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AR Eyewear Try-On with Webcam</title>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.133.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.133.0/examples/js/loaders/GLTFLoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@webxr-polyfill/core.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/webxr-polyfill"></script>
+  <style>
+    body { margin: 0; overflow: hidden; }
+    canvas { display: block; }
+  </style>
+</head>
+<body>
+  <script>
+    let scene, camera, renderer, xrSession, xrRefSpace;
+    let eyewearModel, eyewearObject;
+    let webcamTexture, webcamVideo, webcamMaterial;
     
-    <!-- 然后加载 A-Frame  <script src="https://raw.githubusercontent.com/aframevr/aframe/master/dist/aframe-master.js"></script> -->
-   <!-- <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>-->
+    const canvas = document.createElement("canvas");
+    document.body.appendChild(canvas);
 
-    <!-- 最后加载 AR.js -->
-    <!--<script src="https://cdn.jsdelivr.net/gh/jeromeetienne/AR.js@2.0.0/aframe/build/aframe-ar.js"></script>-->
-               
-<script src="https://aframe.io/releases/0.9.2/aframe.min.js"></script>
-<script src="https://cdn.rawgit.com/jeromeetienne/AR.js/1.7.5/aframe/build/aframe-ar.js"></script>
+    // 初始化场景
+    function init() {
+      scene = new THREE.Scene();
+      camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
-    
-    <style>
-      body { margin: 0; overflow: hidden; }
-      a-scene { width: 100vw; height: 100vh; }
-    </style>
-  </head>
+      renderer = new THREE.WebGLRenderer({ canvas });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      document.body.appendChild(renderer.domElement);
 
- <body>
-    <a-scene embedded arjs>
-      <!-- AR Marker -->
-      <a-marker preset="hiro" id="marker1">
-        <!-- 3D 眼鏡模型 -->
-        <a-entity gltf-model="url(glasses.glb)" scale="1.2 1.2 1.2" position="1.03 1.2 1.3" animation-mixer
-  id="eyeglassesModel"></a-entity>
-      </a-marker>
-      <!-- 相機設定 -->
-      <a-entity camera></a-entity>
-    </a-scene>
-    <script>
-      // 等待 A-Frame 加载完毕
-      window.addEventListener('load', function() {
-        const canvas = document.querySelector('canvas');
-        if (canvas) {
-          const context = canvas.getContext('2d', { willReadFrequently: true });
+      const light = new THREE.AmbientLight(0xFFFFFF, 1);
+      scene.add(light);
 
-          // 不需要做其他修改，AR.js 和 A-Frame 会自动使用这个 canvas。
+      // 加载眼镜模型
+      const loader = new THREE.GLTFLoader();
+      loader.load('eyewear_model.glb', function (gltf) {
+        eyewearModel = gltf.scene;
+        eyewearObject = eyewearModel;
+        eyewearObject.scale.set(0.5, 0.5, 0.5); // 设置模型的大小
+        scene.add(eyewearObject);
+      });
+
+      // 启动 WebCamera 视频流
+      initWebcam();
+
+      // 响应式窗口大小
+      window.addEventListener('resize', onWindowResize, false);
+    }
+
+    // 初始化 WebCamera 视频流
+    async function initWebcam() {
+      // 获取摄像头视频流
+      try {
+        webcamVideo = document.createElement('video');
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        webcamVideo.srcObject = stream;
+        webcamVideo.play();
+        
+        webcamTexture = new THREE.VideoTexture(webcamVideo);
+        webcamTexture.minFilter = THREE.LinearFilter;
+        webcamTexture.magFilter = THREE.LinearFilter;
+        webcamTexture.format = THREE.RGBFormat;
+
+        // 创建一个屏幕大小的平面来显示摄像头背景
+        const planeGeometry = new THREE.PlaneGeometry(2, 2 * (window.innerHeight / window.innerWidth));
+        const planeMaterial = new THREE.MeshBasicMaterial({ map: webcamTexture });
+        const plane = new THREE.Mesh(planeGeometry, planeMaterial);
+        plane.position.z = -1;  // 背景层在相机前方
+        scene.add(plane);
+      } catch (error) {
+        console.error("Webcam access failed:", error);
+      }
+    }
+
+    // 处理窗口大小变化
+    function onWindowResize() {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    // 启动 WebXR 会话
+    async function startXR() {
+      if (navigator.xr) {
+        try {
+          const session = await navigator.xr.requestSession('immersive-ar', {
+            requiredFeatures: ['hit-test', 'local'],
+          });
+          xrSession = session;
+          xrRefSpace = await session.requestReferenceSpace('local');
+          
+          session.addEventListener('end', onSessionEnded);
+          const onXRFrame = (time, frame) => {
+            renderer.xr.update();
+            render(time, frame);
+            session.requestAnimationFrame(onXRFrame);
+          };
+          
+          session.requestAnimationFrame(onXRFrame);
+        } catch (e) {
+          console.error("Failed to start AR session", e);
         }
-      });
-     // 获取 marker 控制器
-      const markerElement = document.querySelector('#marker1');
-      markerElement.addEventListener('loaded', function() {
-        // 获取 AR.js 的 marker 控制器
-        const markerControls = markerElement.components['arjs-marker'].markerControls;
+      }
+    }
 
-        // 启用 markersAreaEnabled
-        markerControls.markersAreaEnabled = true;
-      });
-  document.querySelector('#eyeglassesModel').addEventListener('model-loaded', function() {
-    console.log('模型加载完成');
-  });
+    // 渲染场景
+    function render(time, frame) {
+      const session = xrSession;
+      const viewerPose = frame.getViewerPose(xrRefSpace);
+      if (viewerPose) {
+        const xrCamera = viewerPose.views[0].camera;
+        camera.matrix.fromArray(xrCamera.transform.matrix);
+        camera.matrixWorldNeedsUpdate = true;
+        renderer.render(scene, camera);
+      }
+    }
 
-  document.querySelector('#eyeglassesModel').addEventListener('error', function() {
-    console.error('加载模型失败');
-  });
-    </script>
-  </body>
+    // 会话结束时
+    function onSessionEnded() {
+      xrSession = null;
+      eyewearObject = null;
+    }
+
+    // 启动 AR
+    window.addEventListener('click', () => {
+      if (!xrSession) {
+        startXR();
+      }
+    });
+
+    init();
+  </script>
+</body>
 </html>
