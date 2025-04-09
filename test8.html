@@ -36,7 +36,7 @@
 
       // 加载眼镜模型
       const loader = new THREE.GLTFLoader();
-      loader.load('eyewear_model.glb', function (gltf) {
+      loader.load('glasses.glb', function (gltf) {
         eyewearModel = gltf.scene;
         eyewearObject = eyewearModel;
         eyewearObject.scale.set(0.5, 0.5, 0.5); // 设置模型的大小
