@@ -30,14 +30,69 @@
       scene.add(cube);
       camera.position.z = 5;
 
-      // 启动 WebXR
-      startXR();
+      // 添加点击提示
+      const message = document.createElement("div");
+      message.style.position = "absolute";
+      message.style.top = "20px";
+      message.style.left = "50%";
+      message.style.transform = "translateX(-50%)";
+      message.style.fontSize = "24px";
+      message.style.color = "white";
+      message.innerText = "Click anywhere to start AR";
+      document.body.appendChild(message);
+
+      // 检查 WebXR 是否支持 immersive-ar
+      checkWebXRSupport();
+    }
+
+    // 检查是否支持 immersive-ar 会话
+    function checkWebXRSupport() {
+      if (navigator.xr) {
+        navigator.xr.isSessionSupported('immersive-ar').then((supported) => {
+          if (supported) {
+            console.log("immersive-ar is supported!");
+            // 允许用户启动 AR 会话
+            document.body.addEventListener('click', () => {
+              if (!xrSession) {
+                startXR();
+              }
+            });
+          } else {
+            console.error("immersive-ar is not supported on this device.");
+            // 显示提示信息，告知用户设备不支持 AR
+            const unsupportedMessage = document.createElement("div");
+            unsupportedMessage.style.position = "absolute";
+            unsupportedMessage.style.top = "50%";
+            unsupportedMessage.style.left = "50%";
+            unsupportedMessage.style.transform = "translate(-50%, -50%)";
+            unsupportedMessage.style.fontSize = "24px";
+            unsupportedMessage.style.color = "red";
+            unsupportedMessage.innerText = "Your device does not support immersive AR.";
+            document.body.appendChild(unsupportedMessage);
+          }
+        }).catch((error) => {
+          console.error("Error checking immersive-ar support:", error);
+        });
+      } else {
+        console.error("WebXR is not supported on this browser.");
+        // 提示用户浏览器不支持 WebXR
+        const unsupportedMessage = document.createElement("div");
+        unsupportedMessage.style.position = "absolute";
+        unsupportedMessage.style.top = "50%";
+        unsupportedMessage.style.left = "50%";
+        unsupportedMessage.style.transform = "translate(-50%, -50%)";
+        unsupportedMessage.style.fontSize = "24px";
+        unsupportedMessage.style.color = "red";
+        unsupportedMessage.innerText = "WebXR is not supported on your browser.";
+        document.body.appendChild(unsupportedMessage);
+      }
     }
 
     // 启动 WebXR 会话
     async function startXR() {
       if (navigator.xr) {
         try {
+          console.log("Requesting XR session...");
           const session = await navigator.xr.requestSession('immersive-ar', {
             requiredFeatures: ['hit-test', 'local']
           });
@@ -46,7 +101,7 @@
           xrRefSpace = await session.requestReferenceSpace('local');
 
           session.addEventListener('end', onSessionEnded);
-          
+
           const onXRFrame = (time, frame) => {
             render(time, frame);
             session.requestAnimationFrame(onXRFrame);
@@ -74,18 +129,11 @@
       }
     }
 
-    // 结束 XR 会话
+    // 会话结束
     function onSessionEnded() {
       xrSession = null;
       console.log("XR session ended");
     }
-
-    // 启动应用
-    window.addEventListener('click', () => {
-      if (!xrSession) {
-        startXR();
-      }
-    });
 
     // 初始化 Three.js 场景
     init();
