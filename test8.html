@@ -90,6 +90,7 @@
 
     // 启动 WebXR 会话
     async function startXR() {
+      // WebXR 会话必须由用户交互触发
       if (navigator.xr) {
         try {
           console.log("Requesting XR session...");
