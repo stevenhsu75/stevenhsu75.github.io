@@ -85,7 +85,8 @@
       if ('xr' in navigator) {  // 检查浏览器是否支持 WebXR
         try {
           const session = await navigator.xr.requestSession('immersive-ar', {
-            requiredFeatures: ['hit-test', 'local'],
+            // Try removing certain features that may not be supported
+            requiredFeatures: ['local'],
           });
           xrSession = session;
           xrRefSpace = await session.requestReferenceSpace('local');
@@ -100,6 +101,7 @@
           session.requestAnimationFrame(onXRFrame);
         } catch (e) {
           console.error("Failed to start AR session", e);
+          alert("Error starting AR session. Make sure your device supports immersive AR.");
         }
       } else {
         alert("WebXR is not supported in your browser.");
