@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>眼鏡特效</title>
+  <style>
+    canvas, video {
+      position: absolute;
+      left: 0;
+      top: 0;
+    }
+  </style>
+</head>
+<body>
+  <video id="video" width="640" height="480" autoplay muted></video>
+  <canvas id="overlay" width="640" height="480"></canvas>
+
+  <script defer src="face-api.js"></script>
+  <script>
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('overlay');
+    const ctx = canvas.getContext('2d');
+
+    // 載入模型
+    Promise.all([
+      faceapi.nets.tinyFaceDetector.load('/'),
+      faceapi.nets.faceLandmark68Net.load('/'),
+    ]).then(startVideo);
+
+    function startVideo() {
+      navigator.mediaDevices.getUserMedia({ video: {} })
+        .then(stream => video.srcObject = stream)
+        .catch(err => console.error("無法啟用攝影機", err));
+    }
+
+    const glassesImg = new Image();
+    glassesImg.src = 'glasses.png';
+
+    video.addEventListener('play', () => {
+      const drawLoop = async () => {
+        const detections = await faceapi
+          .detectSingleFace(video, new faceapi.TinyFaceDetectorOptions())
+          .withFaceLandmarks();
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        if (detections) {
+          const landmarks = detections.landmarks;
+          const leftEye = landmarks.getLeftEye();
+          const rightEye = landmarks.getRightEye();
+
+          const getCenter = (pts) => ({
+            x: pts.reduce((sum, p) => sum + p.x, 0) / pts.length,
+            y: pts.reduce((sum, p) => sum + p.y, 0) / pts.length,
+          });
+
+          const leftCenter = getCenter(leftEye);
+          const rightCenter = getCenter(rightEye);
+
+          const glassesCenter = {
+            x: (leftCenter.x + rightCenter.x) / 2,
+            y: (leftCenter.y + rightCenter.y) / 2,
+          };
+
+          const eyeDistance = Math.hypot(
+            rightCenter.x - leftCenter.x,
+            rightCenter.y - leftCenter.y
+          );
+
+          const angle = Math.atan2(
+            rightCenter.y - leftCenter.y,
+            rightCenter.x - leftCenter.x
+          );
+
+          // 畫眼鏡
+          const width = eyeDistance * 2;
+          const height = width * 0.5;
+
+          ctx.save();
+          ctx.translate(glassesCenter.x, glassesCenter.y);
+          ctx.rotate(angle);
+          ctx.drawImage(glassesImg, -width / 2, -height / 2, width, height);
+          ctx.restore();
+        }
+
+        requestAnimationFrame(drawLoop);
+      };
+
+      drawLoop();
+    });
+  </script>
+</body>
+</html>
