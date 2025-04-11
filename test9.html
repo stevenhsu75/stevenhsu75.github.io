@@ -111,8 +111,8 @@
           const height = width / 220 * 80;
           
           const faceTilt = (noseCenter.x - leftCenter.x) / (rightCenter.x - leftCenter.x);
-          const leftScale = 1 - (faceTilt - 0.5) * 0.4;
-          const rightScale = 1 + (faceTilt - 0.5) * 0.4;
+          const leftScale = 1 + (faceTilt - 0.5) * 0.4;
+          const rightScale = 1 - (faceTilt - 0.5) * 0.4;
           
           const halfWidth = width / 2;
 
