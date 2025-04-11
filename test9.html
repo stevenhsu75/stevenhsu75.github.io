@@ -20,6 +20,17 @@
     const video = document.getElementById('video');
     const canvas = document.getElementById('overlay');
     const ctx = canvas.getContext('2d');
+    if (isMobile) {
+        width = 480;
+        height = 640;
+    } else {
+        width = 640;
+        height = 480;
+    }
+    // Set canvas size to video size
+    canvas.width = video.width = width;
+    canvas.height = video.height = height;
+
 
     // 載入模型
     Promise.all([
@@ -74,7 +85,7 @@
 
           // 畫眼鏡
           const width = eyeDistance * 2;
-          const height = width * 0.5;
+          const height = width * / 220 * 80;
 
           ctx.save();
           ctx.translate(glassesCenter.x, glassesCenter.y);
