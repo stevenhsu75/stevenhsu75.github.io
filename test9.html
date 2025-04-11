@@ -58,6 +58,7 @@
           const landmarks = detections.landmarks;
           const leftEye = landmarks.getLeftEye();
           const rightEye = landmarks.getRightEye();
+          const jaw = landmarks.getJawOutline();
 
           const getCenter = (pts) => ({
             x: pts.reduce((sum, p) => sum + p.x, 0) / pts.length,
@@ -66,24 +67,45 @@
 
           const leftCenter = getCenter(leftEye);
           const rightCenter = getCenter(rightEye);
+          const hasBothEyes = leftEye.length && rightEye.length;
+          
+          let glassesCenter, angle, width;
 
-          const glassesCenter = {
-            x: (leftCenter.x + rightCenter.x) / 2,
-            y: (leftCenter.y + rightCenter.y) / 2,
-          };
-
-          const eyeDistance = Math.hypot(
-            rightCenter.x - leftCenter.x,
-            rightCenter.y - leftCenter.y
-          );
-
-          const angle = Math.atan2(
-            rightCenter.y - leftCenter.y,
-            rightCenter.x - leftCenter.x
-          );
+          if (hasBothEyes) {
+            // 正臉：使用眼睛中心點與距離
+            glassesCenter = {
+              x: (leftCenter.x + rightCenter.x) / 2,
+              y: (leftCenter.y + rightCenter.y) / 2,
+            };
+            angle = Math.atan2(
+              rightCenter.y - leftCenter.y,
+              rightCenter.x - leftCenter.x
+            );
+            const eyeDistance = Math.hypot(
+              rightCenter.x - leftCenter.x,
+              rightCenter.y - leftCenter.y
+            );
+            width = eyeDistance * 2;
+          } else {
+            // 側臉 fallback：使用下顎輪廓估計
+            const leftJaw = jaw[0];
+            const rightJaw = jaw[16];
+            glassesCenter = {
+              x: (leftJaw.x + rightJaw.x) / 2,
+              y: (leftJaw.y + rightJaw.y) / 2 - 40, // 稍微往上偏移對齊眼睛
+            };
+            angle = Math.atan2(
+              rightJaw.y - leftJaw.y,
+              rightJaw.x - leftJaw.x
+            );
+            const faceWidth = Math.hypot(
+              rightJaw.x - leftJaw.x,
+              rightJaw.y - leftJaw.y
+            );
+            width = faceWidth * 0.8; // 比整張臉略窄一點
+          }
 
           // 畫眼鏡
-          const width = eyeDistance * 2;
           const height = width / 220 * 80;
 
           ctx.save();
