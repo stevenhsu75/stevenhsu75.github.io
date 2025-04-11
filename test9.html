@@ -59,6 +59,7 @@
           const leftEye = landmarks.getLeftEye();
           const rightEye = landmarks.getRightEye();
           const jaw = landmarks.getJawOutline();
+          const nose = landmarks.getNose();
 
           const getCenter = (pts) => ({
             x: pts.reduce((sum, p) => sum + p.x, 0) / pts.length,
@@ -67,6 +68,7 @@
 
           const leftCenter = getCenter(leftEye);
           const rightCenter = getCenter(rightEye);
+          const noseCenter = getCenter(nose);
           const hasBothEyes = leftEye.length && rightEye.length;
           
           let glassesCenter, angle, width;
@@ -85,7 +87,7 @@
               rightCenter.x - leftCenter.x,
               rightCenter.y - leftCenter.y
             );
-            width = eyeDistance * 2;
+            width = eyeDistance * 2.5;
           } else {
             // 側臉 fallback：使用下顎輪廓估計
             const leftJaw = jaw[0];
@@ -102,16 +104,37 @@
               rightJaw.x - leftJaw.x,
               rightJaw.y - leftJaw.y
             );
-            width = faceWidth * 0.8; // 比整張臉略窄一點
+            width = faceWidth * 1.1; // 比整張臉略窄一點
           }
 
           // 畫眼鏡
           const height = width / 220 * 80;
+          
+          const faceTilt = (noseCenter.x - leftCenter.x) / (rightCenter.x - leftCenter.x);
+          const leftScale = 1 - (faceTilt - 0.5) * 0.4;
+          const rightScale = 1 + (faceTilt - 0.5) * 0.4;
+          
+          const halfWidth = width / 2;
 
           ctx.save();
           ctx.translate(glassesCenter.x, glassesCenter.y);
           ctx.rotate(angle);
-          ctx.drawImage(glassesImg, -width / 2, -height / 2, width, height);
+          // 左半邊
+          ctx.drawImage(
+            glassesImg,
+            0, 0, glassesImg.width / 2, glassesImg.height,
+            -halfWidth, -height / 2,
+            halfWidth * leftScale, height
+          );
+
+          // 右半邊
+          ctx.drawImage(
+            glassesImg,
+            glassesImg.width / 2, 0, glassesImg.width / 2, glassesImg.height,
+            -halfWidth + halfWidth * leftScale, -height / 2,
+            halfWidth * rightScale, height
+          );
+          
           ctx.restore();
         }
 
