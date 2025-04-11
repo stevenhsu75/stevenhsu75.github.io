@@ -20,16 +20,14 @@
     const video = document.getElementById('video');
     const canvas = document.getElementById('overlay');
     const ctx = canvas.getContext('2d');
-    if (isMobile) {
-        width = 480;
-        height = 640;
-    } else {
-        width = 640;
-        height = 480;
-    }
     // Set canvas size to video size
-    canvas.width = video.width = width;
-    canvas.height = video.height = height;
+    if (isMobile) {
+      canvas.width = video.width = 480;
+      canvas.height = video.height = 640;
+    } else {
+      canvas.width = video.width = 640;
+      canvas.height = video.height = 480;
+    }
 
 
     // 載入模型
