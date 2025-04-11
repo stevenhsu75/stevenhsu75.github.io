@@ -48,12 +48,21 @@
 
     video.addEventListener('play', () => {
       const drawLoop = async () => {
+        // 清空畫布
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // 鏡像 canvas 畫面
+        ctx.save();
+        ctx.translate(canvas.width, 0);
+        ctx.scale(-1, 1);
+
+        // 畫攝影機畫面
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
         const detections = await faceapi
           .detectSingleFace(video, new faceapi.TinyFaceDetectorOptions())
           .withFaceLandmarks();
-
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
+  
         if (detections) {
           const landmarks = detections.landmarks;
           const leftEye = landmarks.getLeftEye();
@@ -77,7 +86,7 @@
               x: (leftCenter.x + rightCenter.x) / 2,
               y: (leftCenter.y + rightCenter.y) / 2,
             };
-            angle = Math.atan2(
+            angle = -Math.atan2(
               rightCenter.y - leftCenter.y,
               rightCenter.x - leftCenter.x
             );
@@ -94,7 +103,7 @@
               x: (leftJaw.x + rightJaw.x) / 2,
               y: (leftJaw.y + rightJaw.y) / 2 - 40, // 稍微往上偏移對齊眼睛
             };
-            angle = Math.atan2(
+            angle = -Math.atan2(
               rightJaw.y - leftJaw.y,
               rightJaw.x - leftJaw.x
             );
@@ -108,13 +117,12 @@
           // 畫眼鏡
           const height = width / 220 * 80;
 
-          ctx.save();
-          ctx.translate(glassesCenter.x, glassesCenter.y);
+          ctx.translate(canvas.width - glassesCenter.x, glassesCenter.y);
           ctx.rotate(angle);
           ctx.drawImage(glassesImg, -width / 2, -height / 2, width, height);
-          ctx.restore();
         }
 
+        ctx.restore();
         requestAnimationFrame(drawLoop);
       };
 
