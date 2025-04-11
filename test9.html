@@ -20,6 +20,7 @@
     const video = document.getElementById('video');
     const canvas = document.getElementById('overlay');
     const ctx = canvas.getContext('2d');
+    const isMobile = window.innerWidth < window.innerHeight;
     // Set canvas size to video size
     if (isMobile) {
       canvas.width = video.width = 480;
